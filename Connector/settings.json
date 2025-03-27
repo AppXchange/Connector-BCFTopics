@@ -1,0 +1,24 @@
+{
+  "name": "BCFTopics",
+  "urlPart": "bcf-topics",
+  "key": "bcf-topics",
+  "description": "",
+  "modules": [
+    {
+      "id": "bcf30-1",
+      "name": "BCF30",
+      "urlPart": "bcf30",
+      "key": "bcf30",
+      "description": "",
+      "version": 1
+    },
+    {
+      "id": "bcf21-1",
+      "name": "BCF21",
+      "urlPart": "bcf21",
+      "key": "bcf21",
+      "description": "",
+      "version": 1
+    }
+  ]
+}

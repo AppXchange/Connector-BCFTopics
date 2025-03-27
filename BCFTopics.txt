@@ -1,0 +1,169 @@
+https://github.com/AppXchange/Connector-BCFTopics
+
+
+https://app.swaggerhub.com/apis/Trimble-Connect/topic/v2
+
+
+# Build
+cd desktop/connectors
+mkdir connector-bcftopics
+cd connector-bcftopics
+xchange connector new --name BCFTopics
+cd connector
+
+
+______
+
+
+# Auth
+https://app.swaggerhub.com/apis/Trimble-Connect/topic/v2#/Auth%20(BCF%202.1)/ListAuthDetails
+xchange client new --type Http --auth-type OAuth2CodeFlow
+
+
+______
+
+
+## Module 1: Connect 30
+xchange module new --id bcf30-1 --name BCF30 --key bcf30 --version 1
+
+
+# Comments 30
+xchange data-object new --module-id bcf30-1 --name Comments
+xchange data-object new --module-id bcf30-1 --name Comment
+xchange action new --module-id bcf30-1 --object-name Comment --name Create
+xchange action new --module-id bcf30-1 --object-name Comment --name Update
+xchange action new --module-id bcf30-1 --object-name Comment --name Delete
+
+# Documents 30
+xchange data-object new --module-id bcf30-1 --name Documents
+xchange data-object new --module-id bcf30-1 --name Document
+xchange action new --module-id bcf30-1 --object-name Document --name Create
+
+
+# DocumentReferences 30
+xchange data-object new --module-id bcf30-1 --name DocumentReferences
+xchange action new --module-id bcf30-1 --object-name DocumentReferences --name Create
+xchange action new --module-id bcf30-1 --object-name DocumentReferences --name Update
+xchange action new --module-id bcf30-1 --object-name DocumentReferences --name Delete
+
+
+# Files 30
+xchange data-object new --module-id bcf30-1 --name FilesInfo
+xchange data-object new --module-id bcf30-1 --name Files
+xchange action new --module-id bcf30-1 --object-name Files --name Update
+
+
+# Projects 30
+xchange data-object new --module-id bcf30-1 --name Projects
+xchange data-object new --module-id bcf30-1 --name Project
+xchange data-object new --module-id bcf30-1 --name ProjectExtensions
+xchange action new --module-id bcf30-1 --object-name ProjectExtensions --name Update
+xchange data-object new --module-id bcf30-1 --name DefaultProjectExtensions
+
+
+# RelatedTopics 30
+xchange data-object new --module-id bcf30-1 --name RelatedTopics
+xchange action new --module-id bcf30-1 --object-name RelatedTopics --name Update
+
+
+# Topics 30
+xchange data-object new --module-id bcf30-1 --name Topics
+xchange data-object new --module-id bcf30-1 --name Topic
+xchange action new --module-id bcf30-1 --object-name Topic --name Create
+xchange action new --module-id bcf30-1 --object-name Topic --name Update
+xchange action new --module-id bcf30-1 --object-name Topic --name Delete
+
+# Viewpoints
+xchange data-object new --module-id bcf30-1 --name Viewpoints
+xchange data-object new --module-id bcf30-1 --name Viewpoint
+xchange action new --module-id bcf30-1 --object-name Viewpoint --name Create
+xchange action new --module-id bcf30-1 --object-name Viewpoint --name Delete
+xchange data-object new --module-id bcf30-1 --name ViewpointSnapshot
+xchange data-object new --module-id bcf30-1 --name ViewpointSelection
+xchange data-object new --module-id bcf30-1 --name ViewpointColoring
+xchange data-object new --module-id bcf30-1 --name ViewpointVisibility
+
+
+____________________________
+
+
+## Module 2: BCF21
+xchange module new --id bcf21-1 --name BCF21 --key bcf21 --version 1
+
+# Comments 21
+xchange data-object new --module-id bcf21-1 --name Comments
+xchange data-object new --module-id bcf21-1 --name Comment
+xchange action new --module-id bcf21-1 --object-name Comment --name Create
+xchange action new --module-id bcf21-1 --object-name Comment --name Update
+xchange action new --module-id bcf21-1 --object-name Comment --name Delete
+
+
+# Documents 21
+xchange data-object new --module-id bcf21-1 --name Documents
+xchange data-object new --module-id bcf21-1 --name Document
+xchange action new --module-id bcf21-1 --object-name Document --name Create
+
+
+# DocumentReferences 21
+xchange data-object new --module-id bcf21-1 --name DocumentReferences
+xchange action new --module-id bcf21-1 --object-name DocumentReferences --name Create
+xchange action new --module-id bcf21-1 --object-name DocumentReferences --name Update
+xchange action new --module-id bcf21-1 --object-name DocumentReferences --name Delete
+
+
+# Files 21
+xchange data-object new --module-id bcf21-1 --name Files
+xchange action new --module-id bcf21-1 --object-name Files --name Update
+
+
+
+# Projects 21
+xchange data-object new --module-id bcf21-1 --name Projects
+xchange data-object new --module-id bcf21-1 --name Project
+xchange data-object new --module-id bcf21-1 --name ProjectExtensions
+xchange action new --module-id bcf21-1 --object-name ProjectExtensions --name Update
+xchange data-object new --module-id bcf21-1 --name DefaultProjectExtensions
+
+
+# RelatedTopics 21
+xchange data-object new --module-id bcf21-1 --name RelatedTopics
+xchange action new --module-id bcf21-1 --object-name RelatedTopics --name Update
+
+
+# Topics 21
+xchange data-object new --module-id bcf21-1 --name Topics
+xchange data-object new --module-id bcf21-1 --name Topic
+xchange action new --module-id bcf21-1 --object-name Topic --name Create
+xchange action new --module-id bcf21-1 --object-name Topic --name Update
+xchange action new --module-id bcf21-1 --object-name Topic --name Delete
+
+
+
+# Topics Syncing 21
+xchange data-object new --module-id bcf21-1 --name TopicsSyncingObjects
+xchange data-object new --module-id bcf21-1 --name TopicsObjectsChanges
+xchange data-object new --module-id bcf21-1 --name TopicsBatch
+xchange action new --module-id bcf21-1 --object-name TopicsBatch --name Create
+xchange action new --module-id bcf21-1 --object-name TopicsBatch --name Update
+xchange data-object new --module-id bcf21-1 --name CommentsBatch
+xchange action new --module-id bcf21-1 --object-name CommentsBatch --name Create
+xchange action new --module-id bcf21-1 --object-name CommentsBatch --name Update
+
+# User 21
+xchange data-object new --module-id bcf21-1 --name CurrentUser
+xchange data-object new --module-id bcf21-1 --name UserClaims
+
+# Versions 21
+xchange data-object new --module-id bcf21-1 --name Versions
+
+
+# Viewpoints 21
+xchange data-object new --module-id bcf21-1 --name Viewpoints
+xchange data-object new --module-id bcf21-1 --name Viewpoint
+xchange action new --module-id bcf21-1 --object-name Viewpoint --name Create
+xchange action new --module-id bcf21-1 --object-name Viewpoint --name Delete
+xchange data-object new --module-id bcf21-1 --name ViewpointSnapshot
+xchange data-object new --module-id bcf21-1 --name ViewpointSelection
+xchange data-object new --module-id bcf21-1 --name ViewpointColoring
+xchange data-object new --module-id bcf21-1 --name ViewpointVisibility
+
