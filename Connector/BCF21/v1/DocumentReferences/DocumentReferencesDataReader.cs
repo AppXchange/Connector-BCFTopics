@@ -14,31 +14,49 @@ namespace Connector.BCF21.v1.DocumentReferences;
 public class DocumentReferencesDataReader : TypedAsyncDataReaderBase<DocumentReferencesDataObject>
 {
     private readonly ILogger<DocumentReferencesDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
+    private readonly string _projectId;
+    private readonly string _topicId;
+    private string? _skipToken;
 
     public DocumentReferencesDataReader(
-        ILogger<DocumentReferencesDataReader> logger)
+        ILogger<DocumentReferencesDataReader> logger,
+        ApiClient apiClient,
+        string projectId,
+        string topicId)
     {
         _logger = logger;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+        _projectId = projectId ?? throw new ArgumentNullException(nameof(projectId));
+        _topicId = topicId ?? throw new ArgumentNullException(nameof(topicId));
     }
 
-    public override async IAsyncEnumerable<DocumentReferencesDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<DocumentReferencesDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
-        {
-            var response = new ApiResponse<PaginatedResponse<DocumentReferencesDataObject>>();
-            // If the DocumentReferencesDataObject does not have the same structure as the DocumentReferences response from the API, create a new class for it and replace DocumentReferencesDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<DocumentReferencesResponse>>();
+        const int pageSize = 500; // Maximum page size as per API documentation
+        bool hasMoreData;
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
+        do
+        {
+            ApiResponse<IEnumerable<DocumentReferencesDataObject>>? response = null;
+
             try
             {
-                //response = await _apiClient.GetRecords<DocumentReferencesDataObject>(
-                //    relativeUrl: "documentReferences",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
+                response = await _apiClient.GetBcf21DocumentReferences(
+                    _projectId,
+                    _topicId,
+                    pageSize,
+                    _skipToken,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!response.IsSuccessful)
+                {
+                    _logger.LogError("Failed to retrieve document references for project {ProjectId} and topic {TopicId}. API StatusCode: {StatusCode}", 
+                        _projectId, _topicId, response.StatusCode);
+                    throw new Exception($"Failed to retrieve document references. API StatusCode: {response.StatusCode}");
+                }
             }
             catch (HttpRequestException exception)
             {
@@ -46,33 +64,23 @@ public class DocumentReferencesDataReader : TypedAsyncDataReaderBase<DocumentRef
                 throw;
             }
 
-            if (!response.IsSuccessful)
+            if (response?.Data == null)
             {
-                throw new Exception($"Failed to retrieve records for 'DocumentReferencesDataObject'. API StatusCode: {response.StatusCode}");
+                yield break;
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
-
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
+            foreach (var documentReference in response.Data)
             {
-                // If new class was created to match the API response, create a new DocumentReferencesDataObject object, map the properties and return a DocumentReferencesDataObject.
-
-                // Example:
-                //var resource = new DocumentReferencesDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
+                yield return documentReference;
             }
 
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
-            }
+            // Update skipToken for next page if available in headers
+            _skipToken = response?.Headers?.TryGetValues("X-Skip-Token", out var values) == true ? 
+                values.FirstOrDefault() : 
+                null;
+
+            hasMoreData = !string.IsNullOrEmpty(_skipToken);
         }
+        while (hasMoreData);
     }
 }

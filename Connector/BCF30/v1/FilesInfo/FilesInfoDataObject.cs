@@ -1,24 +1,55 @@
 namespace Connector.BCF30.v1.FilesInfo;
 
 using Json.Schema.Generation;
-using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.CacheWriter;
 
 /// <summary>
-/// Data object that will represent an object in the Xchange system. This will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Data object representing file information in BCF 3.0
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("file.reference", "File.Reference")]
+[Description("BCF 3.0 File Information object representing file metadata and display information")]
 public class FilesInfoDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("display_information")]
+    [Description("Collection of display information fields for the file")]
     [Required]
-    public required Guid Id { get; init; }
+    public required IEnumerable<DisplayInformation> DisplayInformation { get; init; }
+
+    [JsonPropertyName("file")]
+    [Description("The file reference information")]
+    [Required]
+    public required FileInfo File { get; init; }
+}
+
+public class DisplayInformation
+{
+    [JsonPropertyName("field_display_name")]
+    [Description("The display name of the field")]
+    [Required]
+    public required string FieldDisplayName { get; init; }
+
+    [JsonPropertyName("field_value")]
+    [Description("The value of the field")]
+    [Required]
+    public required string FieldValue { get; init; }
+}
+
+public class FileInfo
+{
+    [JsonPropertyName("ifc_project")]
+    [Description("The IFC project identifier")]
+    [Required]
+    public required string IfcProject { get; init; }
+
+    [JsonPropertyName("filename")]
+    [Description("The name of the referenced file")]
+    [Required]
+    public required string Filename { get; init; }
+
+    [JsonPropertyName("reference")]
+    [Description("The reference to the file, either as an absolute URI or a server-specific ID")]
+    [Required]
+    public required string Reference { get; init; }
 }

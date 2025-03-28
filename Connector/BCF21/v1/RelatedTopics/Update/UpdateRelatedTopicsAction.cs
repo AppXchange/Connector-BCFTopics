@@ -1,36 +1,44 @@
 namespace Connector.BCF21.v1.RelatedTopics.Update;
 
 using Json.Schema.Generation;
-using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.Action;
 
 /// <summary>
-/// Action object that will represent an action in the Xchange system. This will contain an input object type,
-/// an output object type, and a Action failure type (this will default to <see cref="StandardActionFailure"/>
-/// but that can be overridden with your own preferred type). These objects will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Action for updating related topics in BCF 2.1
 /// </summary>
-[Description("UpdateRelatedTopicsAction Action description goes here")]
-public class UpdateRelatedTopicsAction : IStandardAction<UpdateRelatedTopicsActionInput, UpdateRelatedTopicsActionOutput>
+[Description("Updates the related topics for a specific topic in BCF 2.1")]
+public class UpdateRelatedTopicsAction : IStandardAction<UpdateRelatedTopicsActionInput, IEnumerable<RelatedTopicsDataObject>>
 {
     public UpdateRelatedTopicsActionInput ActionInput { get; set; } = new();
-    public UpdateRelatedTopicsActionOutput ActionOutput { get; set; } = new();
+    public IEnumerable<RelatedTopicsDataObject> ActionOutput { get; set; } = new List<RelatedTopicsDataObject>();
     public StandardActionFailure ActionFailure { get; set; } = new();
-
     public bool CreateRtap => true;
 }
 
 public class UpdateRelatedTopicsActionInput
 {
+    [JsonPropertyName("project_id")]
+    [Description("The ID of the project containing the topic")]
+    [Required]
+    public string ProjectId { get; set; } = string.Empty;
 
+    [JsonPropertyName("topic_id")]
+    [Description("The ID of the topic to update related topics for")]
+    [Required]
+    public string TopicId { get; set; } = string.Empty;
+
+    [JsonPropertyName("related_topics")]
+    [Description("The array of related topics to be updated")]
+    [Required]
+    public IEnumerable<RelatedTopicReference> RelatedTopics { get; set; } = new List<RelatedTopicReference>();
 }
 
-public class UpdateRelatedTopicsActionOutput
+public class RelatedTopicReference
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("related_topic_guid")]
+    [Description("The GUID of the related topic")]
+    [Required]
+    public string RelatedTopicGuid { get; set; } = string.Empty;
 }

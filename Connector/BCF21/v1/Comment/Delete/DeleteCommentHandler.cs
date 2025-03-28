@@ -2,6 +2,7 @@ using Connector.Client;
 using ESR.Hosting.Action;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.IO;
@@ -17,78 +18,89 @@ namespace Connector.BCF21.v1.Comment.Delete;
 public class DeleteCommentHandler : IActionHandler<DeleteCommentAction>
 {
     private readonly ILogger<DeleteCommentHandler> _logger;
+    private readonly ApiClient _apiClient;
 
     public DeleteCommentHandler(
-        ILogger<DeleteCommentHandler> logger)
+        ILogger<DeleteCommentHandler> logger,
+        ApiClient apiClient)
     {
         _logger = logger;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
     }
     
     public async Task<ActionHandlerOutcome> HandleQueuedActionAsync(ActionInstance actionInstance, CancellationToken cancellationToken)
     {
         var input = JsonSerializer.Deserialize<DeleteCommentActionInput>(actionInstance.InputJson);
+        
+        if (input == null)
+        {
+            return ActionHandlerOutcome.Failed(new StandardActionFailure
+            {
+                Code = "400",
+                Errors = new[]
+                {
+                    new Error
+                    {
+                        Source = new[] { nameof(DeleteCommentHandler) },
+                        Text = "Invalid input data"
+                    }
+                }
+            });
+        }
+
         try
         {
-            // Given the input for the action, make a call to your API/system
-            var response = new ApiResponse<DeleteCommentActionOutput>();
-            // response = await _apiClient.PostCommentDataObject(input, cancellationToken)
-            // .ConfigureAwait(false);
+            var response = await _apiClient.DeleteBcf21Comment(
+                input.ProjectId,
+                input.TopicId,
+                input.CommentId,
+                cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessful || response.Data == null)
+            if (!response.IsSuccessful)
+            {
                 return ActionHandlerOutcome.Failed(new StandardActionFailure
                 {
                     Code = response.StatusCode.ToString(),
-                    Errors = new []
+                    Errors = new[]
                     {
                         new Error
                         {
-                            Source = new [] { nameof(DeleteCommentHandler) },
-                            Text = response.RawResult is { Position: 0, Length: > 0 } ? await new StreamReader(response.RawResult).ReadToEndAsync(cancellationToken) : "Request to target system failed"
+                            Source = new[] { nameof(DeleteCommentHandler) },
+                            Text = response.RawResult is { Position: 0, Length: > 0 } 
+                                ? await new StreamReader(response.RawResult).ReadToEndAsync(cancellationToken) 
+                                : "Failed to delete comment in BCF 2.1"
                         }
                     }
                 });
+            }
 
-            // The full record is needed for SyncOperations. If the endpoint used for the action returns a partial record (such as only returning the ID) then you can either:
-            // - Make a GET call using the ID that was returned
-            // - Add the ID property to your action input (Assuming this results in the proper data object shape)
-
-            // var resource = await _apiClient.GetCommentDataObject(response.Data.id, cancellationToken);
-
-            // var resource = new DeleteCommentActionOutput
-            // {
-            //      TODO : map
-            // };
-
-            // If the response is already the output object for the action, you can use the response directly
-
-            // Build sync operations to update the local cache as well as the Xchange cache system (if the data type is cached)
-            // For more information on SyncOperations and the KeyResolver, check: https://trimble-xchange.github.io/connector-docs/guides/creating-actions/#keyresolver-and-the-sync-cache-operations
+            // For delete operations, we need to remove the item from cache
             var operations = new List<SyncOperation>();
             var keyResolver = new DefaultDataObjectKey();
-            var key = keyResolver.BuildKeyResolver()(response.Data);
-            operations.Add(SyncOperation.CreateSyncOperation(UpdateOperation.Upsert.ToString(), key.UrlPart, key.PropertyNames, response.Data));
+            var key = keyResolver.BuildKeyResolver()(new DeleteCommentActionOutput());
+            operations.Add(SyncOperation.CreateSyncOperation(UpdateOperation.Delete.ToString(), key.UrlPart, key.PropertyNames, new DeleteCommentActionOutput()));
 
             var resultList = new List<CacheSyncCollection>
             {
-                new CacheSyncCollection() { DataObjectType = typeof(CommentDataObject), CacheChanges = operations.ToArray() }
+                new() { DataObjectType = typeof(CommentDataObject), CacheChanges = operations.ToArray() }
             };
 
-            return ActionHandlerOutcome.Successful(response.Data, resultList);
+            return ActionHandlerOutcome.Successful(new DeleteCommentActionOutput(), resultList);
         }
         catch (HttpRequestException exception)
         {
-            // If an error occurs, we want to create a failure result for the action that matches
-            // the failure type for the action. 
-            // Common to create extension methods to map to Standard Action Failure
             var errorSource = new List<string> { nameof(DeleteCommentHandler) };
-            if (string.IsNullOrEmpty(exception.Source)) errorSource.Add(exception.Source!);
+            if (!string.IsNullOrEmpty(exception.Source))
+            {
+                errorSource.Add(exception.Source);
+            }
             
             return ActionHandlerOutcome.Failed(new StandardActionFailure
             {
                 Code = exception.StatusCode?.ToString() ?? "500",
-                Errors = new []
+                Errors = new[]
                 {
-                    new Xchange.Connector.SDK.Action.Error
+                    new Error
                     {
                         Source = errorSource.ToArray(),
                         Text = exception.Message

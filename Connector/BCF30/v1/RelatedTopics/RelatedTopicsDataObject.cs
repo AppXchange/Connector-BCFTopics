@@ -6,19 +6,24 @@ using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.CacheWriter;
 
 /// <summary>
-/// Data object that will represent an object in the Xchange system. This will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Data object representing a related topic in BCF 3.0
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("related_topic_guid", nameof(RelatedTopicGuid))]
+[Description("BCF 3.0 Related Topic object representing a reference to another topic")]
 public class RelatedTopicsDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("project_id")]
+    [Description("The ID of the project this related topic belongs to")]
     [Required]
-    public required Guid Id { get; init; }
+    public required string ProjectId { get; init; }
+
+    [JsonPropertyName("topic_id")]
+    [Description("The ID of the topic this related topic belongs to")]
+    [Required]
+    public required string TopicId { get; init; }
+
+    [JsonPropertyName("related_topic_guid")]
+    [Description("The globally unique identifier of the related topic")]
+    [Required]
+    public required string RelatedTopicGuid { get; init; }
 }

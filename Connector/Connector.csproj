@@ -16,6 +16,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Trimble.Connect.Topic.Client" Version="1.2.1" />
+        <PackageReference Include="Trimble.ID" Version="1.0.0" />
         <PackageReference Include="Trimble.Xchange.Connector.SDK" Version="1.4.6" />
         <PackageReference Include="Trimble.Xchange.Connector.SDK.Test.Local" Version="1.4.6" />
     </ItemGroup>

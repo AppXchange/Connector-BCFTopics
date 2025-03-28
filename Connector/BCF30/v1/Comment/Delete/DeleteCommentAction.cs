@@ -1,7 +1,6 @@
 namespace Connector.BCF30.v1.Comment.Delete;
 
 using Json.Schema.Generation;
-using System;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.Action;
 
@@ -14,11 +13,11 @@ using Xchange.Connector.SDK.Action;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[Description("DeleteCommentAction Action description goes here")]
+[Description("Deletes a BCF 3.0 comment from a topic")]
 public class DeleteCommentAction : IStandardAction<DeleteCommentActionInput, DeleteCommentActionOutput>
 {
-    public DeleteCommentActionInput ActionInput { get; set; } = new();
-    public DeleteCommentActionOutput ActionOutput { get; set; } = new();
+    public DeleteCommentActionInput ActionInput { get; set; } = null!;
+    public DeleteCommentActionOutput ActionOutput { get; set; } = null!;
     public StandardActionFailure ActionFailure { get; set; } = new();
 
     public bool CreateRtap => true;
@@ -26,11 +25,23 @@ public class DeleteCommentAction : IStandardAction<DeleteCommentActionInput, Del
 
 public class DeleteCommentActionInput
 {
+    [JsonPropertyName("project_id")]
+    [Description("The id of the Trimble Connect Project")]
+    [Required]
+    public required string ProjectId { get; init; }
 
+    [JsonPropertyName("topic_id")]
+    [Description("The id of the topic containing the comment")]
+    [Required]
+    public required string TopicId { get; init; }
+
+    [JsonPropertyName("comment_id")]
+    [Description("The id of the comment to delete")]
+    [Required]
+    public required string CommentId { get; init; }
 }
 
 public class DeleteCommentActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    // No output for delete operation as it returns 204 No Content
 }

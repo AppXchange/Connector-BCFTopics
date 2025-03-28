@@ -17,20 +17,25 @@ using Xchange.Connector.SDK.Action;
 [Description("DeleteTopicAction Action description goes here")]
 public class DeleteTopicAction : IStandardAction<DeleteTopicActionInput, DeleteTopicActionOutput>
 {
-    public DeleteTopicActionInput ActionInput { get; set; } = new();
+    public DeleteTopicActionInput ActionInput { get; set; } = null!;
     public DeleteTopicActionOutput ActionOutput { get; set; } = new();
     public StandardActionFailure ActionFailure { get; set; } = new();
 
     public bool CreateRtap => true;
+
+    public string ActionType => "BCF30DeleteTopic";
 }
 
 public class DeleteTopicActionInput
 {
+    [JsonPropertyName("project_id")]
+    public required string ProjectId { get; init; }
 
+    [JsonPropertyName("topic_id")]
+    public required string TopicId { get; init; }
 }
 
 public class DeleteTopicActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    // Empty output class as delete operation doesn't return any data
 }

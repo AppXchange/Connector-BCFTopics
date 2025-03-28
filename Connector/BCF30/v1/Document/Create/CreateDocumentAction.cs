@@ -1,24 +1,17 @@
 namespace Connector.BCF30.v1.Document.Create;
 
 using Json.Schema.Generation;
-using System;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.Action;
 
 /// <summary>
-/// Action object that will represent an action in the Xchange system. This will contain an input object type,
-/// an output object type, and a Action failure type (this will default to <see cref="StandardActionFailure"/>
-/// but that can be overridden with your own preferred type). These objects will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Action object for creating a new document in BCF 3.0
 /// </summary>
-[Description("CreateDocumentAction Action description goes here")]
+[Description("Creates a new document in a BCF 3.0 project")]
 public class CreateDocumentAction : IStandardAction<CreateDocumentActionInput, CreateDocumentActionOutput>
 {
-    public CreateDocumentActionInput ActionInput { get; set; } = new();
-    public CreateDocumentActionOutput ActionOutput { get; set; } = new();
+    public CreateDocumentActionInput ActionInput { get; set; } = null!;
+    public CreateDocumentActionOutput ActionOutput { get; set; } = null!;
     public StandardActionFailure ActionFailure { get; set; } = new();
 
     public bool CreateRtap => true;
@@ -26,11 +19,31 @@ public class CreateDocumentAction : IStandardAction<CreateDocumentActionInput, C
 
 public class CreateDocumentActionInput
 {
+    [JsonPropertyName("project_id")]
+    [Description("The id of the Trimble Connect Project")]
+    [Required]
+    public required string ProjectId { get; init; }
 
+    [JsonPropertyName("filename")]
+    [Description("The name of the document file")]
+    [Required]
+    public required string Filename { get; init; }
+
+    [JsonPropertyName("content")]
+    [Description("The binary content of the document")]
+    [Required]
+    public required byte[] Content { get; init; }
 }
 
 public class CreateDocumentActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("guid")]
+    [Description("The globally unique identifier of the created document")]
+    [Required]
+    public required string Guid { get; init; }
+
+    [JsonPropertyName("filename")]
+    [Description("The name of the document file")]
+    [Required]
+    public required string Filename { get; init; }
 }

@@ -1,4 +1,4 @@
-namespace Connector.BCF30.v1.Comment;
+namespace Connector.BCF30.v1.Comment.Models;
 
 using Json.Schema.Generation;
 using System;
@@ -12,13 +12,32 @@ using Xchange.Connector.SDK.CacheWriter;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("guid", nameof(Guid))]
+[Description("BCF 3.0 Comment object representing a single comment")]
 public class CommentDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("guid")]
+    [Description("The globally unique identifier of the comment")]
     [Required]
-    public required Guid Id { get; init; }
+    public required string Guid { get; init; }
+
+    [JsonPropertyName("date")]
+    [Description("The date when the comment was created")]
+    [Required]
+    public required DateTime Date { get; init; }
+
+    [JsonPropertyName("author")]
+    [Description("The author of the comment")]
+    [Required]
+    public required string Author { get; init; }
+
+    [JsonPropertyName("comment")]
+    [Description("The comment text")]
+    [Required]
+    public required string Comment { get; init; }
+
+    [JsonPropertyName("topic_guid")]
+    [Description("The guid of the topic this comment belongs to")]
+    [Required]
+    public required string TopicGuid { get; init; }
 }

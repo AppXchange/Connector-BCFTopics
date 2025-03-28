@@ -6,19 +6,13 @@ using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.Action;
 
 /// <summary>
-/// Action object that will represent an action in the Xchange system. This will contain an input object type,
-/// an output object type, and a Action failure type (this will default to <see cref="StandardActionFailure"/>
-/// but that can be overridden with your own preferred type). These objects will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Creates a new Viewpoint for the specified Trimble Connect Project and Topic
 /// </summary>
-[Description("CreateViewpointAction Action description goes here")]
+[Description("Creates a new Viewpoint for the specified Trimble Connect Project and Topic")]
 public class CreateViewpointAction : IStandardAction<CreateViewpointActionInput, CreateViewpointActionOutput>
 {
-    public CreateViewpointActionInput ActionInput { get; set; } = new();
-    public CreateViewpointActionOutput ActionOutput { get; set; } = new();
+    public CreateViewpointActionInput ActionInput { get; set; } = new() { Index = 0 };
+    public CreateViewpointActionOutput ActionOutput { get; set; } = new() { Guid = string.Empty, ViewId = string.Empty, Index = 0 };
     public StandardActionFailure ActionFailure { get; set; } = new();
 
     public bool CreateRtap => true;
@@ -26,11 +20,93 @@ public class CreateViewpointAction : IStandardAction<CreateViewpointActionInput,
 
 public class CreateViewpointActionInput
 {
+    [JsonPropertyName("index")]
+    [Description("The index of the viewpoint")]
+    [Required]
+    public required int Index { get; init; }
 
+    [JsonPropertyName("orthogonal_camera")]
+    [Description("The orthogonal camera settings")]
+    public OrthogonalCamera? OrthogonalCamera { get; init; }
+
+    [JsonPropertyName("perspective_camera")]
+    [Description("The perspective camera settings")]
+    public PerspectiveCamera? PerspectiveCamera { get; init; }
+
+    [JsonPropertyName("lines")]
+    [Description("Collection of lines in the viewpoint")]
+    public Line[]? Lines { get; init; }
+
+    [JsonPropertyName("clipping_planes")]
+    [Description("Collection of clipping planes")]
+    public ClippingPlane[]? ClippingPlanes { get; init; }
+
+    [JsonPropertyName("bitmaps")]
+    [Description("Collection of bitmaps")]
+    public Bitmap[]? Bitmaps { get; init; }
+
+    [JsonPropertyName("snapshot")]
+    [Description("The snapshot information")]
+    public SnapshotInput? Snapshot { get; init; }
+
+    [JsonPropertyName("components")]
+    [Description("The components information")]
+    public Components? Components { get; init; }
+}
+
+public class SnapshotInput
+{
+    [JsonPropertyName("snapshot_type")]
+    [Required]
+    public required string SnapshotType { get; init; }
+
+    [JsonPropertyName("snapshot_data")]
+    [Required]
+    public required string SnapshotData { get; init; }
 }
 
 public class CreateViewpointActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("guid")]
+    [Description("The globally unique identifier of the viewpoint")]
+    [Required]
+    public required string Guid { get; init; }
+
+    [JsonPropertyName("view_id")]
+    [Description("The identifier of the view")]
+    [Required]
+    public required string ViewId { get; init; }
+
+    [JsonPropertyName("index")]
+    [Description("The index of the viewpoint")]
+    [Required]
+    public required int Index { get; init; }
+
+    [JsonPropertyName("orthogonal_camera")]
+    [Description("The orthogonal camera settings")]
+    public OrthogonalCamera? OrthogonalCamera { get; init; }
+
+    [JsonPropertyName("perspective_camera")]
+    [Description("The perspective camera settings")]
+    public PerspectiveCamera? PerspectiveCamera { get; init; }
+
+    [JsonPropertyName("lines")]
+    [Description("Collection of lines in the viewpoint")]
+    public Line[]? Lines { get; init; }
+
+    [JsonPropertyName("clipping_planes")]
+    [Description("Collection of clipping planes")]
+    public ClippingPlane[]? ClippingPlanes { get; init; }
+
+    [JsonPropertyName("bitmaps")]
+    [Description("Collection of bitmaps")]
+    public Bitmap[]? Bitmaps { get; init; }
+
+    [JsonPropertyName("snapshot")]
+    [Description("The snapshot information")]
+    public Snapshot? Snapshot { get; init; }
+
+    [JsonPropertyName("components")]
+    [Description("The components information")]
+    public Components? Components { get; init; }
 }

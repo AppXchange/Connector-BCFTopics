@@ -1,7 +1,7 @@
 {
-  "name": "BCFTopics",
-  "urlPart": "bcf-topics",
-  "key": "bcf-topics",
+  "name": "BCF Topics",
+  "urlPart": "trimble-sales-bcf-topics",
+  "key": "trimble-sales-bcf-topics",
   "description": "",
   "modules": [
     {

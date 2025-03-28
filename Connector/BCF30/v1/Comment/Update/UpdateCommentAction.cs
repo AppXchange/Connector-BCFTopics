@@ -14,11 +14,11 @@ using Xchange.Connector.SDK.Action;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[Description("UpdateCommentAction Action description goes here")]
+[Description("Updates a BCF 3.0 comment on a topic")]
 public class UpdateCommentAction : IStandardAction<UpdateCommentActionInput, UpdateCommentActionOutput>
 {
-    public UpdateCommentActionInput ActionInput { get; set; } = new();
-    public UpdateCommentActionOutput ActionOutput { get; set; } = new();
+    public UpdateCommentActionInput ActionInput { get; set; } = null!;
+    public UpdateCommentActionOutput ActionOutput { get; set; } = null!;
     public StandardActionFailure ActionFailure { get; set; } = new();
 
     public bool CreateRtap => true;
@@ -26,11 +26,46 @@ public class UpdateCommentAction : IStandardAction<UpdateCommentActionInput, Upd
 
 public class UpdateCommentActionInput
 {
+    [JsonPropertyName("project_id")]
+    [Description("The id of the Trimble Connect Project")]
+    [Required]
+    public required string ProjectId { get; init; }
 
+    [JsonPropertyName("topic_id")]
+    [Description("The id of the topic containing the comment")]
+    [Required]
+    public required string TopicId { get; init; }
+
+    [JsonPropertyName("comment_id")]
+    [Description("The id of the comment to update")]
+    [Required]
+    public required string CommentId { get; init; }
+
+    [JsonPropertyName("comment")]
+    [Description("The updated comment text")]
+    [Required]
+    public required string Comment { get; init; }
 }
 
 public class UpdateCommentActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("guid")]
+    [Description("The globally unique identifier of the comment")]
+    public required string Guid { get; init; }
+
+    [JsonPropertyName("date")]
+    [Description("The date when the comment was created")]
+    public required DateTime Date { get; init; }
+
+    [JsonPropertyName("author")]
+    [Description("The author of the comment")]
+    public required string Author { get; init; }
+
+    [JsonPropertyName("comment")]
+    [Description("The comment text")]
+    public required string Comment { get; init; }
+
+    [JsonPropertyName("topic_guid")]
+    [Description("The guid of the topic this comment belongs to")]
+    public required string TopicGuid { get; init; }
 }

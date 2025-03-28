@@ -14,10 +14,10 @@ using Xchange.Connector.SDK.Action;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[Description("DeleteViewpointAction Action description goes here")]
+[Description("Deletes a viewpoint in BCF 3.0")]
 public class DeleteViewpointAction : IStandardAction<DeleteViewpointActionInput, DeleteViewpointActionOutput>
 {
-    public DeleteViewpointActionInput ActionInput { get; set; } = new();
+    public DeleteViewpointActionInput ActionInput { get; set; } = null!;
     public DeleteViewpointActionOutput ActionOutput { get; set; } = new();
     public StandardActionFailure ActionFailure { get; set; } = new();
 
@@ -26,11 +26,23 @@ public class DeleteViewpointAction : IStandardAction<DeleteViewpointActionInput,
 
 public class DeleteViewpointActionInput
 {
+    [JsonPropertyName("project_id")]
+    [Description("The ID of the project containing the viewpoint")]
+    [Required]
+    public required string ProjectId { get; init; }
 
+    [JsonPropertyName("topic_id")]
+    [Description("The ID of the topic containing the viewpoint")]
+    [Required]
+    public required string TopicId { get; init; }
+
+    [JsonPropertyName("viewpoint_id")]
+    [Description("The ID of the viewpoint to delete")]
+    [Required]
+    public required string ViewpointId { get; init; }
 }
 
 public class DeleteViewpointActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    // Empty output class as delete operation doesn't return any data
 }

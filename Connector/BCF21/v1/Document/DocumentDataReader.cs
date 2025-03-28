@@ -14,65 +14,53 @@ namespace Connector.BCF21.v1.Document;
 public class DocumentDataReader : TypedAsyncDataReaderBase<DocumentDataObject>
 {
     private readonly ILogger<DocumentDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
+    private readonly string _projectId;
+    private readonly string _documentId;
 
     public DocumentDataReader(
-        ILogger<DocumentDataReader> logger)
+        ILogger<DocumentDataReader> logger,
+        ApiClient apiClient,
+        string projectId,
+        string documentId)
     {
         _logger = logger;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+        _projectId = projectId ?? throw new ArgumentNullException(nameof(projectId));
+        _documentId = documentId ?? throw new ArgumentNullException(nameof(documentId));
     }
 
-    public override async IAsyncEnumerable<DocumentDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<DocumentDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
-        {
-            var response = new ApiResponse<PaginatedResponse<DocumentDataObject>>();
-            // If the DocumentDataObject does not have the same structure as the Document response from the API, create a new class for it and replace DocumentDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<DocumentResponse>>();
+        ApiResponse<DocumentDataObject>? response = null;
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<DocumentDataObject>(
-                //    relativeUrl: "documents",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'DocumentDataObject'");
-                throw;
-            }
+        try
+        {
+            response = await _apiClient.GetBcf21Document(
+                _projectId,
+                _documentId,
+                cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'DocumentDataObject'. API StatusCode: {response.StatusCode}");
-            }
-
-            if (response.Data == null || !response.Data.Items.Any()) break;
-
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
-            {
-                // If new class was created to match the API response, create a new DocumentDataObject object, map the properties and return a DocumentDataObject.
-
-                // Example:
-                //var resource = new DocumentDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
+                _logger.LogError("Failed to retrieve document {DocumentId} for project {ProjectId}. API StatusCode: {StatusCode}", 
+                    _documentId, _projectId, response.StatusCode);
+                throw new Exception($"Failed to retrieve document. API StatusCode: {response.StatusCode}");
             }
         }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Exception while making a read request to data object 'DocumentDataObject'");
+            throw;
+        }
+
+        if (response?.Data == null)
+        {
+            yield break;
+        }
+
+        yield return response.Data;
     }
 }

@@ -1,9 +1,9 @@
 using Connector.Client;
-using System;
+using Connector.BCF30.v1.DocumentReferences.Models;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Xchange.Connector.SDK.CacheWriter;
@@ -14,64 +14,56 @@ namespace Connector.BCF30.v1.DocumentReferences;
 public class DocumentReferencesDataReader : TypedAsyncDataReaderBase<DocumentReferencesDataObject>
 {
     private readonly ILogger<DocumentReferencesDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
+    private readonly string _projectId;
+    private readonly string _topicId;
 
     public DocumentReferencesDataReader(
-        ILogger<DocumentReferencesDataReader> logger)
+        ILogger<DocumentReferencesDataReader> logger,
+        ApiClient apiClient,
+        string projectId,
+        string topicId)
     {
         _logger = logger;
+        _apiClient = apiClient;
+        _projectId = projectId;
+        _topicId = topicId;
     }
 
-    public override async IAsyncEnumerable<DocumentReferencesDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<DocumentReferencesDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
-        {
-            var response = new ApiResponse<PaginatedResponse<DocumentReferencesDataObject>>();
-            // If the DocumentReferencesDataObject does not have the same structure as the DocumentReferences response from the API, create a new class for it and replace DocumentReferencesDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<DocumentReferencesResponse>>();
+        IEnumerable<DocumentReferencesDataObject>? documentReferences = null;
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<DocumentReferencesDataObject>(
-                //    relativeUrl: "documentReferences",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'DocumentReferencesDataObject'");
-                throw;
-            }
+        try
+        {
+            var response = await _apiClient.GetBcf30DocumentReferences(
+                projectId: _projectId,
+                topicId: _topicId,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'DocumentReferencesDataObject'. API StatusCode: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve BCF 3.0 document references. API StatusCode: {response.StatusCode}");
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
+            documentReferences = response.Data;
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, 
+                "Exception while retrieving BCF 3.0 document references for project {ProjectId} and topic {TopicId}", 
+                _projectId, _topicId);
+            throw;
+        }
 
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
+        if (documentReferences != null)
+        {
+            foreach (var documentReference in documentReferences)
             {
-                // If new class was created to match the API response, create a new DocumentReferencesDataObject object, map the properties and return a DocumentReferencesDataObject.
-
-                // Example:
-                //var resource = new DocumentReferencesDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
+                yield return documentReference;
             }
         }
     }

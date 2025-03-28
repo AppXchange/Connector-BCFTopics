@@ -6,18 +6,12 @@ using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.Action;
 
 /// <summary>
-/// Action object that will represent an action in the Xchange system. This will contain an input object type,
-/// an output object type, and a Action failure type (this will default to <see cref="StandardActionFailure"/>
-/// but that can be overridden with your own preferred type). These objects will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Creates Comments in batch for the specified Trimble Connect Project
 /// </summary>
-[Description("CreateCommentsBatchAction Action description goes here")]
+[Description("Creates Comments in batch for the specified Trimble Connect Project")]
 public class CreateCommentsBatchAction : IStandardAction<CreateCommentsBatchActionInput, CreateCommentsBatchActionOutput>
 {
-    public CreateCommentsBatchActionInput ActionInput { get; set; } = new();
+    public CreateCommentsBatchActionInput ActionInput { get; set; } = new() { Items = Array.Empty<CommentBatchItem>() };
     public CreateCommentsBatchActionOutput ActionOutput { get; set; } = new();
     public StandardActionFailure ActionFailure { get; set; } = new();
 
@@ -26,11 +20,56 @@ public class CreateCommentsBatchAction : IStandardAction<CreateCommentsBatchActi
 
 public class CreateCommentsBatchActionInput
 {
+    [JsonPropertyName("items")]
+    [Description("Collection of comments to create")]
+    [Required]
+    public required CommentBatchItem[] Items { get; set; }
+}
 
+public class CommentBatchItem
+{
+    [JsonPropertyName("comment")]
+    [Description("The comment text")]
+    [Required]
+    public required string Comment { get; set; }
+
+    [JsonPropertyName("guid")]
+    [Description("The globally unique identifier of the comment")]
+    public string? Guid { get; set; }
+
+    [JsonPropertyName("date")]
+    [Description("The date of the comment")]
+    public DateTime? Date { get; set; }
+
+    [JsonPropertyName("author")]
+    [Description("The author of the comment")]
+    public string? Author { get; set; }
+
+    [JsonPropertyName("author_uuid")]
+    [Description("The UUID of the author")]
+    public string? AuthorUuid { get; set; }
+
+    [JsonPropertyName("topic_guid")]
+    [Description("The globally unique identifier of the topic")]
+    [Required]
+    public required string TopicGuid { get; set; }
+
+    [JsonPropertyName("viewpoint_guid")]
+    [Description("The globally unique identifier of the viewpoint")]
+    public string? ViewpointGuid { get; set; }
+
+    [JsonPropertyName("reply_to_comment_guid")]
+    [Description("The globally unique identifier of the comment being replied to")]
+    public string? ReplyToCommentGuid { get; set; }
 }
 
 public class CreateCommentsBatchActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("items")]
+    [Description("Collection of created comments")]
+    public CommentItem[] Items { get; set; } = Array.Empty<CommentItem>();
+
+    [JsonPropertyName("errors")]
+    [Description("Collection of errors that occurred during batch processing")]
+    public BatchError[] Errors { get; set; } = Array.Empty<BatchError>();
 }

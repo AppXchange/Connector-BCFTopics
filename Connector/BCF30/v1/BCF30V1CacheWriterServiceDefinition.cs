@@ -27,6 +27,11 @@ using Xchange.Connector.SDK.Abstraction.Change;
 using Xchange.Connector.SDK.Abstraction.Hosting;
 using Xchange.Connector.SDK.CacheWriter;
 using Xchange.Connector.SDK.Hosting.Configuration;
+using Connector.BCF30.v1.Comments.Models;
+using Connector.BCF30.v1.Comment.Models;
+using Connector.BCF30.v1.Documents.Models;
+using Connector.BCF30.v1.Document.Models;
+using Connector.BCF30.v1.DocumentReferences.Models;
 
 public class BCF30V1CacheWriterServiceDefinition : BaseCacheWriterServiceDefinition<BCF30V1CacheWriterConfig>
 {

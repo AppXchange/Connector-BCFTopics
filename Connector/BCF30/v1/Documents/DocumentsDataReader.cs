@@ -1,7 +1,8 @@
 using Connector.Client;
-using System;
+using Connector.BCF30.v1.Documents.Models;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,64 +15,50 @@ namespace Connector.BCF30.v1.Documents;
 public class DocumentsDataReader : TypedAsyncDataReaderBase<DocumentsDataObject>
 {
     private readonly ILogger<DocumentsDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
+    private readonly string _projectId;
 
     public DocumentsDataReader(
-        ILogger<DocumentsDataReader> logger)
+        ILogger<DocumentsDataReader> logger,
+        ApiClient apiClient,
+        string projectId)
     {
         _logger = logger;
+        _apiClient = apiClient;
+        _projectId = projectId;
     }
 
-    public override async IAsyncEnumerable<DocumentsDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<DocumentsDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
-        {
-            var response = new ApiResponse<PaginatedResponse<DocumentsDataObject>>();
-            // If the DocumentsDataObject does not have the same structure as the Documents response from the API, create a new class for it and replace DocumentsDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<DocumentsResponse>>();
+        IEnumerable<DocumentsDataObject>? documents = null;
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<DocumentsDataObject>(
-                //    relativeUrl: "documents",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'DocumentsDataObject'");
-                throw;
-            }
+        try
+        {
+            var response = await _apiClient.GetBcf30Documents(
+                projectId: _projectId,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'DocumentsDataObject'. API StatusCode: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve BCF 3.0 documents. API StatusCode: {response.StatusCode}");
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
+            documents = response.Data;
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Exception while retrieving BCF 3.0 documents for project {ProjectId}", _projectId);
+            throw;
+        }
 
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
+        if (documents != null)
+        {
+            foreach (var document in documents)
             {
-                // If new class was created to match the API response, create a new DocumentsDataObject object, map the properties and return a DocumentsDataObject.
-
-                // Example:
-                //var resource = new DocumentsDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
+                yield return document;
             }
         }
     }

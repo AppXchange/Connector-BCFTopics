@@ -14,10 +14,10 @@ using Xchange.Connector.SDK.Action;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[Description("CreateTopicsBatchAction Action description goes here")]
+[Description("Creates Topics in batch for the specified Trimble Connect Project")]
 public class CreateTopicsBatchAction : IStandardAction<CreateTopicsBatchActionInput, CreateTopicsBatchActionOutput>
 {
-    public CreateTopicsBatchActionInput ActionInput { get; set; } = new();
+    public CreateTopicsBatchActionInput ActionInput { get; set; } = new() { Items = Array.Empty<TopicBatchItem>() };
     public CreateTopicsBatchActionOutput ActionOutput { get; set; } = new();
     public StandardActionFailure ActionFailure { get; set; } = new();
 
@@ -26,11 +26,61 @@ public class CreateTopicsBatchAction : IStandardAction<CreateTopicsBatchActionIn
 
 public class CreateTopicsBatchActionInput
 {
+    [JsonPropertyName("items")]
+    [Description("Collection of topics to create")]
+    [Required]
+    public required TopicBatchItem[] Items { get; set; }
 
+    [JsonPropertyName("validation")]
+    [Description("Validation behavior for project extensions")]
+    public string? Validation { get; set; }
+}
+
+public class TopicBatchItem
+{
+    [JsonPropertyName("title")]
+    [Description("The title of the topic")]
+    [Required]
+    public required string Title { get; set; }
+
+    [JsonPropertyName("topic_type")]
+    [Description("The type of the topic")]
+    [Required]
+    public required string TopicType { get; set; }
+
+    [JsonPropertyName("description")]
+    [Description("The description of the topic")]
+    public string Description { get; set; } = string.Empty;
+
+    [JsonPropertyName("assigned_to")]
+    [Description("The user assigned to the topic")]
+    public string? AssignedTo { get; set; }
+
+    [JsonPropertyName("assigned_to_uuid")]
+    [Description("The UUID of the user assigned to the topic")]
+    public string? AssignedToUuid { get; set; }
+
+    [JsonPropertyName("topic_status")]
+    [Description("The status of the topic")]
+    [Required]
+    public required string TopicStatus { get; set; }
+
+    [JsonPropertyName("reference_links")]
+    [Description("Collection of reference links")]
+    public string[] ReferenceLinks { get; set; } = Array.Empty<string>();
+
+    [JsonPropertyName("labels")]
+    [Description("Collection of labels")]
+    public string[] Labels { get; set; } = Array.Empty<string>();
 }
 
 public class CreateTopicsBatchActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("items")]
+    [Description("Collection of created topics")]
+    public TopicItem[] Items { get; set; } = Array.Empty<TopicItem>();
+
+    [JsonPropertyName("errors")]
+    [Description("Collection of errors that occurred during batch processing")]
+    public BatchError[] Errors { get; set; } = Array.Empty<BatchError>();
 }

@@ -1,78 +1,92 @@
 using Connector.Client;
-using System;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Xchange.Connector.SDK.CacheWriter;
-using System.Net.Http;
 
 namespace Connector.BCF30.v1.ProjectExtensions;
+
+internal static class DataObjectExtensions
+{
+    public static bool TryGetParameterValue<T>(this DataObjectCacheWriteArguments args, string key, out T? value)
+    {
+        value = default;
+        if (args == null) return false;
+
+        var dict = args.GetType().GetProperty("Arguments")?.GetValue(args) as IDictionary<string, object>;
+        if (dict == null || !dict.ContainsKey(key)) return false;
+
+        try
+        {
+            value = (T)dict[key];
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
 
 public class ProjectExtensionsDataReader : TypedAsyncDataReaderBase<ProjectExtensionsDataObject>
 {
     private readonly ILogger<ProjectExtensionsDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
 
     public ProjectExtensionsDataReader(
-        ILogger<ProjectExtensionsDataReader> logger)
+        ILogger<ProjectExtensionsDataReader> logger,
+        ApiClient apiClient)
     {
         _logger = logger;
+        _apiClient = apiClient;
     }
 
-    public override async IAsyncEnumerable<ProjectExtensionsDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<ProjectExtensionsDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
+        if (dataObjectRunArguments == null)
         {
-            var response = new ApiResponse<PaginatedResponse<ProjectExtensionsDataObject>>();
-            // If the ProjectExtensionsDataObject does not have the same structure as the ProjectExtensions response from the API, create a new class for it and replace ProjectExtensionsDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<ProjectExtensionsResponse>>();
+            _logger.LogError("DataObjectRunArguments is null");
+            yield break;
+        }
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<ProjectExtensionsDataObject>(
-                //    relativeUrl: "projectExtensions",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'ProjectExtensionsDataObject'");
-                throw;
-            }
+        if (!dataObjectRunArguments.TryGetParameterValue("project_id", out string? projectId) || string.IsNullOrEmpty(projectId))
+        {
+            _logger.LogError("Project ID is null or empty");
+            yield break;
+        }
+
+        ProjectExtensionsDataObject? extensions = null;
+
+        try
+        {
+            var response = await _apiClient.GetBcf30ProjectExtensions(
+                projectId,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'ProjectExtensionsDataObject'. API StatusCode: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve BCF 3.0 project extensions. API StatusCode: {response.StatusCode}");
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
+            extensions = response.Data;
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, 
+                "Exception while retrieving BCF 3.0 project extensions for project {ProjectId}", projectId);
+            throw;
+        }
 
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
-            {
-                // If new class was created to match the API response, create a new ProjectExtensionsDataObject object, map the properties and return a ProjectExtensionsDataObject.
-
-                // Example:
-                //var resource = new ProjectExtensionsDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
-            }
+        if (extensions != null)
+        {
+            yield return extensions;
         }
     }
 }

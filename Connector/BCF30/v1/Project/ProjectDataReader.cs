@@ -1,78 +1,92 @@
 using Connector.Client;
-using System;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Xchange.Connector.SDK.CacheWriter;
-using System.Net.Http;
 
 namespace Connector.BCF30.v1.Project;
+
+internal static class DataObjectExtensions
+{
+    public static bool TryGetParameterValue<T>(this DataObjectCacheWriteArguments args, string key, out T? value)
+    {
+        value = default;
+        if (args == null) return false;
+
+        var dict = args.GetType().GetProperty("Arguments")?.GetValue(args) as IDictionary<string, object>;
+        if (dict == null || !dict.ContainsKey(key)) return false;
+
+        try
+        {
+            value = (T)dict[key];
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
 
 public class ProjectDataReader : TypedAsyncDataReaderBase<ProjectDataObject>
 {
     private readonly ILogger<ProjectDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
 
     public ProjectDataReader(
-        ILogger<ProjectDataReader> logger)
+        ILogger<ProjectDataReader> logger,
+        ApiClient apiClient)
     {
         _logger = logger;
+        _apiClient = apiClient;
     }
 
-    public override async IAsyncEnumerable<ProjectDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<ProjectDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
+        if (dataObjectRunArguments == null)
         {
-            var response = new ApiResponse<PaginatedResponse<ProjectDataObject>>();
-            // If the ProjectDataObject does not have the same structure as the Project response from the API, create a new class for it and replace ProjectDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<ProjectResponse>>();
+            _logger.LogError("DataObjectRunArguments is null");
+            yield break;
+        }
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<ProjectDataObject>(
-                //    relativeUrl: "projects",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'ProjectDataObject'");
-                throw;
-            }
+        if (!dataObjectRunArguments.TryGetParameterValue("project_id", out string? projectId) || string.IsNullOrEmpty(projectId))
+        {
+            _logger.LogError("Project ID is null or empty");
+            yield break;
+        }
+
+        ProjectDataObject? project = null;
+
+        try
+        {
+            var response = await _apiClient.GetBcf30Project(
+                projectId,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'ProjectDataObject'. API StatusCode: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve BCF 3.0 project. API StatusCode: {response.StatusCode}");
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
+            project = response.Data;
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, 
+                "Exception while retrieving BCF 3.0 project with ID: {ProjectId}", projectId);
+            throw;
+        }
 
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
-            {
-                // If new class was created to match the API response, create a new ProjectDataObject object, map the properties and return a ProjectDataObject.
-
-                // Example:
-                //var resource = new ProjectDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
-            }
+        if (project != null)
+        {
+            yield return project;
         }
     }
 }

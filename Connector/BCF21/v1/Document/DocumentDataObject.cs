@@ -12,13 +12,22 @@ using Xchange.Connector.SDK.CacheWriter;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("guid", nameof(Guid))]
+[Description("Represents a document in a BCF 2.1 project")]
 public class DocumentDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("guid")]
+    [Description("The unique identifier of the document")]
     [Required]
-    public required Guid Id { get; init; }
+    public string Guid { get; init; } = string.Empty;
+
+    [JsonPropertyName("filename")]
+    [Description("The name of the document file")]
+    [Required]
+    public string Filename { get; init; } = string.Empty;
+
+    [JsonPropertyName("content")]
+    [Description("The binary content of the document")]
+    [Required]
+    public byte[] Content { get; init; } = Array.Empty<byte>();
 }

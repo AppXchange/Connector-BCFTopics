@@ -11,68 +11,89 @@ using System.Net.Http;
 
 namespace Connector.BCF21.v1.TopicsSyncingObjects;
 
+internal static class DataObjectExtensions
+{
+    public static bool TryGetParameterValue<T>(this DataObjectCacheWriteArguments args, string key, out T? value)
+    {
+        value = default;
+        if (args == null) return false;
+
+        var dict = args.GetType().GetProperty("Arguments")?.GetValue(args) as IDictionary<string, object>;
+        if (dict == null || !dict.ContainsKey(key)) return false;
+
+        try
+        {
+            value = (T)dict[key];
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
+
 public class TopicsSyncingObjectsDataReader : TypedAsyncDataReaderBase<TopicsSyncingObjectsDataObject>
 {
     private readonly ILogger<TopicsSyncingObjectsDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
+    private string? _skipToken;
+    private bool _hasMorePages = true;
 
     public TopicsSyncingObjectsDataReader(
-        ILogger<TopicsSyncingObjectsDataReader> logger)
+        ILogger<TopicsSyncingObjectsDataReader> logger,
+        ApiClient apiClient)
     {
         _logger = logger;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
     }
 
-    public override async IAsyncEnumerable<TopicsSyncingObjectsDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<TopicsSyncingObjectsDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments, 
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
+        if (dataObjectRunArguments == null)
         {
-            var response = new ApiResponse<PaginatedResponse<TopicsSyncingObjectsDataObject>>();
-            // If the TopicsSyncingObjectsDataObject does not have the same structure as the TopicsSyncingObjects response from the API, create a new class for it and replace TopicsSyncingObjectsDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<TopicsSyncingObjectsResponse>>();
+            throw new ArgumentNullException(nameof(dataObjectRunArguments));
+        }
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<TopicsSyncingObjectsDataObject>(
-                //    relativeUrl: "topicsSyncingObjects",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'TopicsSyncingObjectsDataObject'");
-                throw;
-            }
+        if (!dataObjectRunArguments.TryGetParameterValue("project_id", out string? projectId) || string.IsNullOrEmpty(projectId))
+        {
+            throw new ArgumentException("Project ID is required", nameof(dataObjectRunArguments));
+        }
+
+        if (!dataObjectRunArguments.TryGetParameterValue("type", out string? type) || string.IsNullOrEmpty(type))
+        {
+            throw new ArgumentException("Type is required", nameof(dataObjectRunArguments));
+        }
+
+        dataObjectRunArguments.TryGetParameterValue("fetchAll", out bool fetchAll);
+        dataObjectRunArguments.TryGetParameterValue("pageSize", out int pageSize);
+
+        while (_hasMorePages)
+        {
+            var response = await _apiClient.GetBcf21SyncingObjects(
+                projectId,
+                type,
+                fetchAll,
+                pageSize,
+                _skipToken,
+                cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'TopicsSyncingObjectsDataObject'. API StatusCode: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve syncing objects. API StatusCode: {response.StatusCode}");
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
-
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
-            {
-                // If new class was created to match the API response, create a new TopicsSyncingObjectsDataObject object, map the properties and return a TopicsSyncingObjectsDataObject.
-
-                // Example:
-                //var resource = new TopicsSyncingObjectsDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
+            if (response.Data == null)
             {
                 break;
             }
+
+            yield return response.Data;
+
+            _skipToken = response.Data.Links.Next.Href;
+            _hasMorePages = !string.IsNullOrEmpty(_skipToken);
         }
     }
 }

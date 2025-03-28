@@ -1,24 +1,28 @@
 namespace Connector.BCF21.v1.CurrentUser;
 
 using Json.Schema.Generation;
-using System;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.CacheWriter;
 
 /// <summary>
-/// Data object that will represent an object in the Xchange system. This will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Data object that represents the current user in BCF 2.1
 /// </summary>
 [PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[Description("Represents the current user in BCF 2.1")]
 public class CurrentUserDataObject
 {
     [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [Description("The identifier of the user")]
     [Required]
-    public required Guid Id { get; init; }
+    public required string Id { get; init; }
+
+    [JsonPropertyName("name")]
+    [Description("The name of the user")]
+    [Required]
+    public required string Name { get; init; }
+
+    [JsonPropertyName("uuid")]
+    [Description("The UUID of the user")]
+    [Required]
+    public required string Uuid { get; init; }
 }

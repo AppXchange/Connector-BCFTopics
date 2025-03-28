@@ -1,6 +1,7 @@
 namespace Connector.BCF21.v1;
 using Connector.BCF21.v1.Comment;
 using Connector.BCF21.v1.Comments;
+using Connector.BCF21.v1.Comments.Models;
 using Connector.BCF21.v1.CommentsBatch;
 using Connector.BCF21.v1.CurrentUser;
 using Connector.BCF21.v1.DefaultProjectExtensions;

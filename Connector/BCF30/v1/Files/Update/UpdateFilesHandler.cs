@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,80 +18,102 @@ namespace Connector.BCF30.v1.Files.Update;
 public class UpdateFilesHandler : IActionHandler<UpdateFilesAction>
 {
     private readonly ILogger<UpdateFilesHandler> _logger;
+    private readonly ApiClient _apiClient;
 
     public UpdateFilesHandler(
-        ILogger<UpdateFilesHandler> logger)
+        ILogger<UpdateFilesHandler> logger,
+        ApiClient apiClient)
     {
         _logger = logger;
+        _apiClient = apiClient;
     }
     
     public async Task<ActionHandlerOutcome> HandleQueuedActionAsync(ActionInstance actionInstance, CancellationToken cancellationToken)
     {
         var input = JsonSerializer.Deserialize<UpdateFilesActionInput>(actionInstance.InputJson);
+        if (input == null)
+        {
+            return ActionHandlerOutcome.Failed(new StandardActionFailure
+            {
+                Code = "400",
+                Errors = new[]
+                {
+                    new Error
+                    {
+                        Source = new[] { nameof(UpdateFilesHandler) },
+                        Text = "Invalid input data"
+                    }
+                }
+            });
+        }
+
         try
         {
-            // Given the input for the action, make a call to your API/system
-            var response = new ApiResponse<UpdateFilesActionOutput>();
-            // response = await _apiClient.PostFilesDataObject(input, cancellationToken)
-            // .ConfigureAwait(false);
+            var response = await _apiClient.UpdateBcf30Files(
+                projectId: input.ProjectId,
+                topicId: input.TopicId,
+                files: input.Files,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessful || response.Data == null)
+            {
                 return ActionHandlerOutcome.Failed(new StandardActionFailure
                 {
                     Code = response.StatusCode.ToString(),
-                    Errors = new []
+                    Errors = new[]
                     {
                         new Error
                         {
-                            Source = new [] { nameof(UpdateFilesHandler) },
-                            Text = response.RawResult is { Position: 0, Length: > 0 } ? await new StreamReader(response.RawResult).ReadToEndAsync(cancellationToken) : "Request to target system failed"
+                            Source = new[] { nameof(UpdateFilesHandler) },
+                            Text = response.RawResult is { Position: 0, Length: > 0 } 
+                                ? await new StreamReader(response.RawResult).ReadToEndAsync(cancellationToken) 
+                                : "Failed to update files"
                         }
                     }
                 });
+            }
 
-            // The full record is needed for SyncOperations. If the endpoint used for the action returns a partial record (such as only returning the ID) then you can either:
-            // - Make a GET call using the ID that was returned
-            // - Add the ID property to your action input (Assuming this results in the proper data object shape)
-
-            // var resource = await _apiClient.GetFilesDataObject(response.Data.id, cancellationToken);
-
-            // var resource = new UpdateFilesActionOutput
-            // {
-            //      TODO : map
-            // };
-
-            // If the response is already the output object for the action, you can use the response directly
-
-            // Build sync operations to update the local cache as well as the Xchange cache system (if the data type is cached)
-            // For more information on SyncOperations and the KeyResolver, check: https://trimble-xchange.github.io/connector-docs/guides/creating-actions/#keyresolver-and-the-sync-cache-operations
+            // Build sync operations to update the cache
             var operations = new List<SyncOperation>();
             var keyResolver = new DefaultDataObjectKey();
-            var key = keyResolver.BuildKeyResolver()(response.Data);
-            operations.Add(SyncOperation.CreateSyncOperation(UpdateOperation.Upsert.ToString(), key.UrlPart, key.PropertyNames, response.Data));
+
+            foreach (var file in response.Data)
+            {
+                var key = keyResolver.BuildKeyResolver()(file);
+                operations.Add(SyncOperation.CreateSyncOperation("Upsert", key.UrlPart, key.PropertyNames, file));
+            }
 
             var resultList = new List<CacheSyncCollection>
             {
-                new CacheSyncCollection() { DataObjectType = typeof(FilesDataObject), CacheChanges = operations.ToArray() }
+                new() { DataObjectType = typeof(FilesDataObject), CacheChanges = operations.ToArray() }
             };
 
-            return ActionHandlerOutcome.Successful(response.Data, resultList);
+            var outputFiles = response.Data.Select(file => new FileReference
+            {
+                IfcProject = file.IfcProject,
+                Filename = file.Filename,
+                Reference = file.Reference
+            });
+
+            return ActionHandlerOutcome.Successful(new UpdateFilesActionOutput { Files = outputFiles }, resultList);
         }
         catch (HttpRequestException exception)
         {
-            // If an error occurs, we want to create a failure result for the action that matches
-            // the failure type for the action. 
-            // Common to create extension methods to map to Standard Action Failure
-            var errorSource = new List<string> { nameof(UpdateFilesHandler) };
-            if (string.IsNullOrEmpty(exception.Source)) errorSource.Add(exception.Source!);
+            _logger.LogError(exception,
+                "Exception while updating BCF 3.0 files for project {ProjectId} and topic {TopicId}",
+                input.ProjectId, input.TopicId);
+
+            var errorSource = new[] { nameof(UpdateFilesHandler) };
             
             return ActionHandlerOutcome.Failed(new StandardActionFailure
             {
                 Code = exception.StatusCode?.ToString() ?? "500",
-                Errors = new []
+                Errors = new[]
                 {
-                    new Xchange.Connector.SDK.Action.Error
+                    new Error
                     {
-                        Source = errorSource.ToArray(),
+                        Source = errorSource,
                         Text = exception.Message
                     }
                 }

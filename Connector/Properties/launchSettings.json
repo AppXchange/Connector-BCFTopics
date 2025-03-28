@@ -1,16 +1,273 @@
 {
   "profiles": {
-    "Action Processor Local Development": {
+ 
+    "BCF30 Update Comment Action Processor Local Development": {
       "commandName": "Project",
-      "commandLineArgs": "--isLocal true --moduleId app-1 --serviceType ActionProcessor --dataObjectUrl placeholder --actionUrl placeholder",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Comment --actionUrl Update",
       "environmentVariables": {
         "DIFFYCACHE_DBLOCATION": "./databases",
         "ESR__QueueName": "localrun"
       }
     },
-    "Cache Writer Local Development": {
+    "BCF30 Delete Comment Action Processor Local Development": {
       "commandName": "Project",
-      "commandLineArgs": "--isLocal true --moduleId app-1 --serviceType CacheWriter",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Comment --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Create Comment Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Comment --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Single Comment Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Comment",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Comments Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Comments",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Documents Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Documents",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Document Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Document",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Create Document Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Document --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Document References Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl DocumentReferences",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Create Document Reference Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl DocumentReference --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Update Document Reference Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl DocumentReference --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Delete Document Reference Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl DocumentReference --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Files Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Files",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Update Files Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Files --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Files Information Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Files",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Projects Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Projects",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Project Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Project",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Project Extensions Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl ProjectExtensions",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Update Project Extensions Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl ProjectExtensions --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Related Topics Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl RelatedTopics",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Update Related Topics Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl RelatedTopics --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Topics Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Topics",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Topic Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Topic",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Create Topic Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Topic --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Update Topic Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Topic --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Delete Topic Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Topic --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Viewpoints Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Viewpoints",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Viewpoint Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl Viewpoint",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Create Viewpoint Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Viewpoint --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Delete Viewpoint Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType ActionProcessor --dataObjectUrl Viewpoint --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Viewpoint Coloring Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl ViewpointColoring",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Viewpoint Selection Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl ViewpointSelection",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Viewpoint Snapshot Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl ViewpointSnapshot",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF30 Viewpoint Visibility Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf30-1 --serviceType CacheWriter --dataObjectUrl ViewpointVisibility",
       "environmentVariables": {
         "DIFFYCACHE_DBLOCATION": "./databases",
         "ESR__QueueName": "localrun"
@@ -27,6 +284,350 @@
     "Direct Run Extraction": {
       "commandName": "Project",
       "commandLineArgs": "--extractConnectorMetadata true",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Documents Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Documents",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Comments Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Comments",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Single Comment Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Comment",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Create Comment Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Comment --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Comment Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Comment --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Delete Comment Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Comment --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Document Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Document",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Create Document Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Document --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Document References Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl DocumentReferences",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Create Document Reference Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl DocumentReferences --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Document Reference Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl DocumentReferences --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Delete Document Reference Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl DocumentReferences --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Files Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Files",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Files Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Files --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Projects Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Projects",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Project Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Project",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Project Extensions Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl ProjectExtensions",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Project Extensions Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl ProjectExtensions --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Default Project Extensions Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl DefaultProjectExtensions",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Related Topics Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl RelatedTopics",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Related Topics Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl RelatedTopics --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Topics Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Topics",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Topic Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Topic",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Create Topic Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Topic --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Topic Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Topic --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Delete Topic Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Topic --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Topics Syncing Objects Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl TopicsSyncingObjects",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Topics Objects Changes Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl TopicsObjectsChanges",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Create Topics Batch Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl TopicsBatch --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Topics Batch Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl TopicsBatch --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Create Comments Batch Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl CommentsBatch --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Update Comments Batch Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl CommentsBatch --actionUrl Update",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Current User Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl CurrentUser",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 User Claims Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl UserClaims",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Versions Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Versions",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Viewpoints Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Viewpoints",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Viewpoint Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl Viewpoint",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Create Viewpoint Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Viewpoint --actionUrl Create",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Delete Viewpoint Action Processor Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType ActionProcessor --dataObjectUrl Viewpoint --actionUrl Delete",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Viewpoint Snapshot Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl ViewpointSnapshot",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Viewpoint Selection Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl ViewpointSelection",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Viewpoint Coloring Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl ViewpointColoring",
+      "environmentVariables": {
+        "DIFFYCACHE_DBLOCATION": "./databases",
+        "ESR__QueueName": "localrun"
+      }
+    },
+    "BCF21 Viewpoint Visibility Cache Writer Local Development": {
+      "commandName": "Project",
+      "commandLineArgs": "--isLocal true --moduleId bcf21-1 --serviceType CacheWriter --dataObjectUrl ViewpointVisibility",
       "environmentVariables": {
         "DIFFYCACHE_DBLOCATION": "./databases",
         "ESR__QueueName": "localrun"

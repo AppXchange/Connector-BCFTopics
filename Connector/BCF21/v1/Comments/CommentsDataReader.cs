@@ -8,70 +8,109 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Xchange.Connector.SDK.CacheWriter;
 using System.Net.Http;
+using Connector.BCF21.v1.Comments.Models;
 
 namespace Connector.BCF21.v1.Comments;
 
 public class CommentsDataReader : TypedAsyncDataReaderBase<CommentsDataObject>
 {
     private readonly ILogger<CommentsDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
+    private readonly string _projectId;
+    private readonly string _topicId;
+    private readonly int _pageSize;
+    private string? _skipToken;
 
     public CommentsDataReader(
-        ILogger<CommentsDataReader> logger)
+        ILogger<CommentsDataReader> logger,
+        ApiClient apiClient,
+        string projectId,
+        string topicId,
+        int pageSize = 500)
     {
         _logger = logger;
+        _apiClient = apiClient;
+        _projectId = projectId;
+        _topicId = topicId;
+        _pageSize = Math.Min(pageSize, 500); // Ensure we don't exceed max page size
     }
 
-    public override async IAsyncEnumerable<CommentsDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<CommentsDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
-        {
-            var response = new ApiResponse<PaginatedResponse<CommentsDataObject>>();
-            // If the CommentsDataObject does not have the same structure as the Comments response from the API, create a new class for it and replace CommentsDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<CommentsResponse>>();
+        bool hasMoreData = true;
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
+        while (hasMoreData)
+        {
+            ApiResponse<IEnumerable<CommentsDataObject>>? response = null;
+            IEnumerable<CommentsDataObject>? currentPageComments = null;
+
             try
             {
-                //response = await _apiClient.GetRecords<CommentsDataObject>(
-                //    relativeUrl: "comments",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
+                response = await _apiClient.GetBcf21Comments(
+                    projectId: _projectId,
+                    topicId: _topicId,
+                    top: _pageSize,
+                    skipToken: _skipToken,
+                    cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (!response.IsSuccessful)
+                {
+                    if (response.StatusCode == 204)
+                    {
+                        // No more comments to retrieve
+                        hasMoreData = false;
+                        continue;
+                    }
+
+                    throw new ApiException
+                    {
+                        StatusCode = response.StatusCode,
+                        Content = response.RawResult
+                    };
+                }
+
+                currentPageComments = response.Data;
+
+                // Check if we got any data
+                if (currentPageComments == null || !currentPageComments.Any())
+                {
+                    hasMoreData = false;
+                    continue;
+                }
+
+                // Update pagination token from response
+                var nextLink = response.Headers?.GetValues("odata.nextLink").FirstOrDefault();
+                if (string.IsNullOrEmpty(nextLink))
+                {
+                    hasMoreData = false;
+                }
+                else
+                {
+                    // Extract skiptoken from the nextLink
+                    var uri = new Uri(nextLink);
+                    var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                    _skipToken = query["skiptoken"];
+                    hasMoreData = !string.IsNullOrEmpty(_skipToken);
+                }
             }
             catch (HttpRequestException exception)
             {
-                _logger.LogError(exception, "Exception while making a read request to data object 'CommentsDataObject'");
+                _logger.LogError(exception, 
+                    "Exception while making a read request to BCF 2.1 Comments endpoint for project {ProjectId} and topic {TopicId}", 
+                    _projectId, _topicId);
                 throw;
             }
 
-            if (!response.IsSuccessful)
+            // Return the current page of comments outside the try block
+            if (currentPageComments != null)
             {
-                throw new Exception($"Failed to retrieve records for 'CommentsDataObject'. API StatusCode: {response.StatusCode}");
-            }
-
-            if (response.Data == null || !response.Data.Items.Any()) break;
-
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
-            {
-                // If new class was created to match the API response, create a new CommentsDataObject object, map the properties and return a CommentsDataObject.
-
-                // Example:
-                //var resource = new CommentsDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
+                foreach (var comment in currentPageComments)
+                {
+                    yield return comment;
+                }
             }
         }
     }

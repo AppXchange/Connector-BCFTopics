@@ -2,23 +2,18 @@ namespace Connector.BCF30.v1.Topic.Create;
 
 using Json.Schema.Generation;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.Action;
 
 /// <summary>
-/// Action object that will represent an action in the Xchange system. This will contain an input object type,
-/// an output object type, and a Action failure type (this will default to <see cref="StandardActionFailure"/>
-/// but that can be overridden with your own preferred type). These objects will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Action object for creating a new topic in BCF 3.0
 /// </summary>
-[Description("CreateTopicAction Action description goes here")]
+[Description("Creates a new topic in BCF 3.0")]
 public class CreateTopicAction : IStandardAction<CreateTopicActionInput, CreateTopicActionOutput>
 {
-    public CreateTopicActionInput ActionInput { get; set; } = new();
-    public CreateTopicActionOutput ActionOutput { get; set; } = new();
+    public CreateTopicActionInput ActionInput { get; set; } = null!;
+    public CreateTopicActionOutput ActionOutput { get; set; } = null!;
     public StandardActionFailure ActionFailure { get; set; } = new();
 
     public bool CreateRtap => true;
@@ -26,11 +21,120 @@ public class CreateTopicAction : IStandardAction<CreateTopicActionInput, CreateT
 
 public class CreateTopicActionInput
 {
+    [JsonPropertyName("project_id")]
+    [Description("The ID of the project to create the topic in")]
+    [Required]
+    public required string ProjectId { get; init; }
 
+    [JsonPropertyName("topic_type")]
+    [Description("The type of the topic")]
+    [Required]
+    public required string TopicType { get; init; }
+
+    [JsonPropertyName("topic_status")]
+    [Description("The status of the topic")]
+    [Required]
+    public required string TopicStatus { get; init; }
+
+    [JsonPropertyName("title")]
+    [Description("The title of the topic")]
+    [Required]
+    public required string Title { get; init; }
+
+    [JsonPropertyName("priority")]
+    [Description("The priority level of the topic")]
+    [Required]
+    public required string Priority { get; init; }
+
+    [JsonPropertyName("labels")]
+    [Description("The labels associated with the topic")]
+    [Required]
+    public required IEnumerable<string> Labels { get; init; }
+
+    [JsonPropertyName("assigned_to")]
+    [Description("The user assigned to the topic")]
+    public string? AssignedTo { get; init; }
+
+    [JsonPropertyName("bim_snippet")]
+    [Description("BIM snippet associated with the topic")]
+    public BimSnippetInput? BimSnippet { get; init; }
+}
+
+public class BimSnippetInput
+{
+    [JsonPropertyName("snippet_type")]
+    [Description("The type of the BIM snippet")]
+    [Required]
+    public required string SnippetType { get; init; }
+
+    [JsonPropertyName("is_external")]
+    [Description("Whether the snippet is externally hosted")]
+    [Required]
+    public required bool IsExternal { get; init; }
+
+    [JsonPropertyName("reference")]
+    [Description("Reference to the BIM snippet")]
+    [Required]
+    public required string Reference { get; init; }
+
+    [JsonPropertyName("reference_schema")]
+    [Description("Schema for the BIM snippet reference")]
+    [Required]
+    public required string ReferenceSchema { get; init; }
 }
 
 public class CreateTopicActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("guid")]
+    [Description("The globally unique identifier of the created topic")]
+    [Required]
+    public required string Guid { get; init; }
+
+    [JsonPropertyName("server_assigned_id")]
+    [Description("The server-assigned identifier of the created topic")]
+    [Required]
+    public required string ServerAssignedId { get; init; }
+
+    [JsonPropertyName("creation_author")]
+    [Description("The author who created the topic")]
+    [Required]
+    public required string CreationAuthor { get; init; }
+
+    [JsonPropertyName("creation_date")]
+    [Description("The date and time when the topic was created")]
+    [Required]
+    public required DateTime CreationDate { get; init; }
+
+    [JsonPropertyName("topic_type")]
+    [Description("The type of the topic")]
+    [Required]
+    public required string TopicType { get; init; }
+
+    [JsonPropertyName("topic_status")]
+    [Description("The status of the topic")]
+    [Required]
+    public required string TopicStatus { get; init; }
+
+    [JsonPropertyName("title")]
+    [Description("The title of the topic")]
+    [Required]
+    public required string Title { get; init; }
+
+    [JsonPropertyName("priority")]
+    [Description("The priority level of the topic")]
+    [Required]
+    public required string Priority { get; init; }
+
+    [JsonPropertyName("labels")]
+    [Description("The labels associated with the topic")]
+    [Required]
+    public required IEnumerable<string> Labels { get; init; }
+
+    [JsonPropertyName("assigned_to")]
+    [Description("The user assigned to the topic")]
+    public string? AssignedTo { get; init; }
+
+    [JsonPropertyName("bim_snippet")]
+    [Description("BIM snippet associated with the topic")]
+    public BimSnippetInput? BimSnippet { get; init; }
 }

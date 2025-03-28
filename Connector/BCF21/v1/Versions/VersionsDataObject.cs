@@ -1,24 +1,23 @@
 namespace Connector.BCF21.v1.Versions;
 
 using Json.Schema.Generation;
-using System;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.CacheWriter;
 
 /// <summary>
-/// Data object that will represent an object in the Xchange system. This will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Data object that represents a BCF version
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("version_id", nameof(VersionId))]
+[Description("Represents a BCF version")]
 public class VersionsDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("version_id")]
+    [Description("The identifier of the BCF version")]
     [Required]
-    public required Guid Id { get; init; }
+    public required string VersionId { get; init; }
+
+    [JsonPropertyName("detailed_version")]
+    [Description("The detailed version information")]
+    [Required]
+    public required string DetailedVersion { get; init; }
 }

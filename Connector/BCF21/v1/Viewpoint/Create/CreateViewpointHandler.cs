@@ -2,6 +2,7 @@ using Connector.Client;
 using ESR.Hosting.Action;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.IO;
@@ -14,55 +15,118 @@ using Xchange.Connector.SDK.Client.AppNetwork;
 
 namespace Connector.BCF21.v1.Viewpoint.Create;
 
+internal static class DataObjectExtensions
+{
+    public static bool TryGetParameterValue<T>(this ActionInstance actionInstance, string key, out T? value)
+    {
+        value = default;
+        if (actionInstance == null) return false;
+
+        var dict = actionInstance.GetType().GetProperty("Parameters")?.GetValue(actionInstance) as IDictionary<string, object>;
+        if (dict == null || !dict.ContainsKey(key)) return false;
+
+        try
+        {
+            value = (T)dict[key];
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
+
 public class CreateViewpointHandler : IActionHandler<CreateViewpointAction>
 {
     private readonly ILogger<CreateViewpointHandler> _logger;
+    private readonly ApiClient _apiClient;
 
     public CreateViewpointHandler(
-        ILogger<CreateViewpointHandler> logger)
+        ILogger<CreateViewpointHandler> logger,
+        ApiClient apiClient)
     {
         _logger = logger;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
     }
     
     public async Task<ActionHandlerOutcome> HandleQueuedActionAsync(ActionInstance actionInstance, CancellationToken cancellationToken)
     {
         var input = JsonSerializer.Deserialize<CreateViewpointActionInput>(actionInstance.InputJson);
+        if (input == null)
+        {
+            return ActionHandlerOutcome.Failed(new StandardActionFailure
+            {
+                Code = "400",
+                Errors = new[]
+                {
+                    new Error
+                    {
+                        Source = new[] { nameof(CreateViewpointHandler) },
+                        Text = "Invalid input data"
+                    }
+                }
+            });
+        }
+
         try
         {
-            // Given the input for the action, make a call to your API/system
-            var response = new ApiResponse<CreateViewpointActionOutput>();
-            // response = await _apiClient.PostViewpointDataObject(input, cancellationToken)
-            // .ConfigureAwait(false);
-
-            if (!response.IsSuccessful || response.Data == null)
+            if (!actionInstance.TryGetParameterValue("project_id", out string? projectId) || string.IsNullOrEmpty(projectId))
+            {
                 return ActionHandlerOutcome.Failed(new StandardActionFailure
                 {
-                    Code = response.StatusCode.ToString(),
-                    Errors = new []
+                    Code = "400",
+                    Errors = new[]
                     {
                         new Error
                         {
-                            Source = new [] { nameof(CreateViewpointHandler) },
-                            Text = response.RawResult is { Position: 0, Length: > 0 } ? await new StreamReader(response.RawResult).ReadToEndAsync(cancellationToken) : "Request to target system failed"
+                            Source = new[] { nameof(CreateViewpointHandler) },
+                            Text = "Project ID is required"
                         }
                     }
                 });
+            }
 
-            // The full record is needed for SyncOperations. If the endpoint used for the action returns a partial record (such as only returning the ID) then you can either:
-            // - Make a GET call using the ID that was returned
-            // - Add the ID property to your action input (Assuming this results in the proper data object shape)
+            if (!actionInstance.TryGetParameterValue("topic_id", out string? topicId) || string.IsNullOrEmpty(topicId))
+            {
+                return ActionHandlerOutcome.Failed(new StandardActionFailure
+                {
+                    Code = "400",
+                    Errors = new[]
+                    {
+                        new Error
+                        {
+                            Source = new[] { nameof(CreateViewpointHandler) },
+                            Text = "Topic ID is required"
+                        }
+                    }
+                });
+            }
 
-            // var resource = await _apiClient.GetViewpointDataObject(response.Data.id, cancellationToken);
+            var response = await _apiClient.CreateBcf21Viewpoint(
+                projectId,
+                topicId,
+                input,
+                cancellationToken).ConfigureAwait(false);
 
-            // var resource = new CreateViewpointActionOutput
-            // {
-            //      TODO : map
-            // };
+            if (!response.IsSuccessful || response.Data == null)
+            {
+                return ActionHandlerOutcome.Failed(new StandardActionFailure
+                {
+                    Code = response.StatusCode.ToString(),
+                    Errors = new[]
+                    {
+                        new Error
+                        {
+                            Source = new[] { nameof(CreateViewpointHandler) },
+                            Text = response.RawResult is { Position: 0, Length: > 0 } ? 
+                                await new StreamReader(response.RawResult).ReadToEndAsync(cancellationToken) : 
+                                "Request to target system failed"
+                        }
+                    }
+                });
+            }
 
-            // If the response is already the output object for the action, you can use the response directly
-
-            // Build sync operations to update the local cache as well as the Xchange cache system (if the data type is cached)
-            // For more information on SyncOperations and the KeyResolver, check: https://trimble-xchange.github.io/connector-docs/guides/creating-actions/#keyresolver-and-the-sync-cache-operations
             var operations = new List<SyncOperation>();
             var keyResolver = new DefaultDataObjectKey();
             var key = keyResolver.BuildKeyResolver()(response.Data);
@@ -77,18 +141,15 @@ public class CreateViewpointHandler : IActionHandler<CreateViewpointAction>
         }
         catch (HttpRequestException exception)
         {
-            // If an error occurs, we want to create a failure result for the action that matches
-            // the failure type for the action. 
-            // Common to create extension methods to map to Standard Action Failure
             var errorSource = new List<string> { nameof(CreateViewpointHandler) };
-            if (string.IsNullOrEmpty(exception.Source)) errorSource.Add(exception.Source!);
+            if (!string.IsNullOrEmpty(exception.Source)) errorSource.Add(exception.Source);
             
             return ActionHandlerOutcome.Failed(new StandardActionFailure
             {
                 Code = exception.StatusCode?.ToString() ?? "500",
-                Errors = new []
+                Errors = new[]
                 {
-                    new Xchange.Connector.SDK.Action.Error
+                    new Error
                     {
                         Source = errorSource.ToArray(),
                         Text = exception.Message

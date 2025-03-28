@@ -14,7 +14,7 @@ using Xchange.Connector.SDK.Action;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[Description("CreateDocumentAction Action description goes here")]
+[Description("Creates a new document in a BCF 2.1 project")]
 public class CreateDocumentAction : IStandardAction<CreateDocumentActionInput, CreateDocumentActionOutput>
 {
     public CreateDocumentActionInput ActionInput { get; set; } = new();
@@ -26,11 +26,29 @@ public class CreateDocumentAction : IStandardAction<CreateDocumentActionInput, C
 
 public class CreateDocumentActionInput
 {
+    [JsonPropertyName("projectId")]
+    [Description("The id of the Trimble Connect Project")]
+    [Required]
+    public string ProjectId { get; set; } = string.Empty;
 
+    [JsonPropertyName("filename")]
+    [Description("The name of the document file")]
+    [Required]
+    public string Filename { get; set; } = string.Empty;
+
+    [JsonPropertyName("content")]
+    [Description("The binary content of the document")]
+    [Required]
+    public byte[] Content { get; set; } = Array.Empty<byte>();
 }
 
 public class CreateDocumentActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("guid")]
+    [Description("The unique identifier of the created document")]
+    public string Guid { get; set; } = string.Empty;
+
+    [JsonPropertyName("filename")]
+    [Description("The name of the document file")]
+    public string Filename { get; set; } = string.Empty;
 }

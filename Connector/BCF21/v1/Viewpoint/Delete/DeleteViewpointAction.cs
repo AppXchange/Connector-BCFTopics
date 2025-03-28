@@ -6,15 +6,9 @@ using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.Action;
 
 /// <summary>
-/// Action object that will represent an action in the Xchange system. This will contain an input object type,
-/// an output object type, and a Action failure type (this will default to <see cref="StandardActionFailure"/>
-/// but that can be overridden with your own preferred type). These objects will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Deletes a viewpoint from a specific BCF 2.1 topic
 /// </summary>
-[Description("DeleteViewpointAction Action description goes here")]
+[Description("Deletes a viewpoint from a specific BCF 2.1 topic")]
 public class DeleteViewpointAction : IStandardAction<DeleteViewpointActionInput, DeleteViewpointActionOutput>
 {
     public DeleteViewpointActionInput ActionInput { get; set; } = new();
@@ -26,11 +20,12 @@ public class DeleteViewpointAction : IStandardAction<DeleteViewpointActionInput,
 
 public class DeleteViewpointActionInput
 {
-
+    // No input fields needed as parameters are passed through action parameters
 }
 
 public class DeleteViewpointActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("success")]
+    [Description("Indicates if the deletion was successful")]
+    public bool Success { get; init; }
 }

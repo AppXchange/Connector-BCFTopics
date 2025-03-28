@@ -12,13 +12,37 @@ using Xchange.Connector.SDK.CacheWriter;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("guid", nameof(Guid))]
+[Description("Represents a document reference in a BCF 2.1 topic")]
 public class DocumentReferencesDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("version")]
+    [Description("The version of the document reference")]
+    public int Version { get; init; }
+
+    [JsonPropertyName("guid")]
+    [Description("The unique identifier of the document reference")]
     [Required]
-    public required Guid Id { get; init; }
+    public string Guid { get; init; } = string.Empty;
+
+    [JsonPropertyName("document_guid")]
+    [Description("The unique identifier of the referenced document")]
+    [Required]
+    public string DocumentGuid { get; init; } = string.Empty;
+
+    [JsonPropertyName("url")]
+    [Description("The URL of the document")]
+    public string? Url { get; init; }
+
+    [JsonPropertyName("description")]
+    [Description("The description of the document reference")]
+    public string? Description { get; init; }
+
+    [JsonPropertyName("created_by_uuid")]
+    [Description("The unique identifier of the user who created the document reference")]
+    public string? CreatedByUuid { get; init; }
+
+    [JsonPropertyName("type")]
+    [Description("The type of the document reference")]
+    public string? Type { get; init; }
 }

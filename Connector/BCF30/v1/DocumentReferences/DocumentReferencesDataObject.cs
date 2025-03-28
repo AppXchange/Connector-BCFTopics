@@ -1,24 +1,31 @@
-namespace Connector.BCF30.v1.DocumentReferences;
+namespace Connector.BCF30.v1.DocumentReferences.Models;
 
 using Json.Schema.Generation;
-using System;
 using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.CacheWriter;
 
 /// <summary>
-/// Data object that will represent an object in the Xchange system. This will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Data object representing a document reference in BCF 3.0
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("guid", nameof(Guid))]
+[Description("BCF 3.0 Document Reference object representing a reference to a document in a topic")]
 public class DocumentReferencesDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("guid")]
+    [Description("The globally unique identifier of the document reference")]
     [Required]
-    public required Guid Id { get; init; }
+    public required string Guid { get; init; }
+
+    [JsonPropertyName("url")]
+    [Description("The URL to the referenced document")]
+    public string? Url { get; init; }
+
+    [JsonPropertyName("document_guid")]
+    [Description("The guid of the referenced document")]
+    public string? DocumentGuid { get; init; }
+
+    [JsonPropertyName("description")]
+    [Description("Description of the document reference")]
+    [Required]
+    public required string Description { get; init; }
 }

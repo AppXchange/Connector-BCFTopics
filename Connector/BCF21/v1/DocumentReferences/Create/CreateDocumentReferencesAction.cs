@@ -14,7 +14,7 @@ using Xchange.Connector.SDK.Action;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[Description("CreateDocumentReferencesAction Action description goes here")]
+[Description("Creates a new document reference for a topic in BCF 2.1")]
 public class CreateDocumentReferencesAction : IStandardAction<CreateDocumentReferencesActionInput, CreateDocumentReferencesActionOutput>
 {
     public CreateDocumentReferencesActionInput ActionInput { get; set; } = new();
@@ -26,11 +26,60 @@ public class CreateDocumentReferencesAction : IStandardAction<CreateDocumentRefe
 
 public class CreateDocumentReferencesActionInput
 {
+    [JsonPropertyName("projectId")]
+    [Description("The id of the Trimble Connect Project")]
+    [Required]
+    public string ProjectId { get; set; } = string.Empty;
 
+    [JsonPropertyName("topicId")]
+    [Description("The id of the Topic")]
+    [Required]
+    public string TopicId { get; set; } = string.Empty;
+
+    [JsonPropertyName("guid")]
+    [Description("The unique identifier of the document reference")]
+    public string? Guid { get; set; }
+
+    [JsonPropertyName("document_guid")]
+    [Description("The unique identifier of the referenced document")]
+    public string? DocumentGuid { get; set; }
+
+    [JsonPropertyName("url")]
+    [Description("The URL of the external document")]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("description")]
+    [Description("The description of the document reference")]
+    public string? Description { get; set; }
 }
 
 public class CreateDocumentReferencesActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    [JsonPropertyName("version")]
+    [Description("The version of the document reference")]
+    public int Version { get; set; }
+
+    [JsonPropertyName("guid")]
+    [Description("The unique identifier of the document reference")]
+    public string Guid { get; set; } = string.Empty;
+
+    [JsonPropertyName("document_guid")]
+    [Description("The unique identifier of the referenced document")]
+    public string? DocumentGuid { get; set; }
+
+    [JsonPropertyName("url")]
+    [Description("The URL of the external document")]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("description")]
+    [Description("The description of the document reference")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("created_by_uuid")]
+    [Description("The unique identifier of the user who created the document reference")]
+    public string? CreatedByUuid { get; set; }
+
+    [JsonPropertyName("type")]
+    [Description("The type of the document reference")]
+    public string? Type { get; set; }
 }

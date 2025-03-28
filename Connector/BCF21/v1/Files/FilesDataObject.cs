@@ -6,19 +6,32 @@ using System.Text.Json.Serialization;
 using Xchange.Connector.SDK.CacheWriter;
 
 /// <summary>
-/// Data object that will represent an object in the Xchange system. This will be converted to a JsonSchema, 
-/// so add attributes to the properties to provide any descriptions, titles, ranges, max, min, etc... 
-/// These types will be used for validation at runtime to make sure the objects being passed through the system 
-/// are properly formed. The schema also helps provide integrators more information for what the values 
-/// are intended to be.
+/// Represents a file reference in a BCF 2.1 topic
 /// </summary>
-[PrimaryKey("id", nameof(Id))]
-//[AlternateKey("alt-key-id", nameof(CompanyId), nameof(EquipmentNumber))]
-[Description("Example description of the object.")]
+[PrimaryKey("reference", nameof(Reference))]
+[Description("Represents a file reference in a BCF 2.1 topic")]
 public class FilesDataObject
 {
-    [JsonPropertyName("id")]
-    [Description("Example primary key of the object")]
+    [JsonPropertyName("ifc_project")]
+    [Description("The IFC project identifier")]
+    public string? IfcProject { get; init; }
+
+    [JsonPropertyName("ifc_spatial_structure_element")]
+    [Description("The IFC spatial structure element")]
+    public string? IfcSpatialStructureElement { get; init; }
+
+    [JsonPropertyName("file_name")]
+    [Description("The name of the referenced file")]
     [Required]
-    public required Guid Id { get; init; }
+    public string FileName { get; init; } = string.Empty;
+
+    [JsonPropertyName("date")]
+    [Description("The date associated with the file")]
+    [Required]
+    public string Date { get; init; } = string.Empty;
+
+    [JsonPropertyName("reference")]
+    [Description("The unique reference identifier for the file")]
+    [Required]
+    public string Reference { get; init; } = string.Empty;
 }

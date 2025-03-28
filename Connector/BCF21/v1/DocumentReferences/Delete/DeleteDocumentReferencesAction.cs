@@ -14,7 +14,7 @@ using Xchange.Connector.SDK.Action;
 /// are properly formed. The schema also helps provide integrators more information for what the values 
 /// are intended to be.
 /// </summary>
-[Description("DeleteDocumentReferencesAction Action description goes here")]
+[Description("Deletes a document reference from a BCF 2.1 topic")]
 public class DeleteDocumentReferencesAction : IStandardAction<DeleteDocumentReferencesActionInput, DeleteDocumentReferencesActionOutput>
 {
     public DeleteDocumentReferencesActionInput ActionInput { get; set; } = new();
@@ -26,11 +26,23 @@ public class DeleteDocumentReferencesAction : IStandardAction<DeleteDocumentRefe
 
 public class DeleteDocumentReferencesActionInput
 {
+    [JsonPropertyName("projectId")]
+    [Description("The id of the Trimble Connect Project")]
+    [Required]
+    public string ProjectId { get; set; } = string.Empty;
 
+    [JsonPropertyName("topicId")]
+    [Description("The id of the Topic")]
+    [Required]
+    public string TopicId { get; set; } = string.Empty;
+
+    [JsonPropertyName("documentReferenceId")]
+    [Description("The id of the document reference to be deleted")]
+    [Required]
+    public string DocumentReferenceId { get; set; } = string.Empty;
 }
 
 public class DeleteDocumentReferencesActionOutput
 {
-    [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    // No output properties needed for delete operation as it returns 204 No Content
 }

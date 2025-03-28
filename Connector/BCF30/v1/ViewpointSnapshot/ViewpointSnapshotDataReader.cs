@@ -1,78 +1,107 @@
 using Connector.Client;
-using System;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Xchange.Connector.SDK.CacheWriter;
-using System.Net.Http;
 
 namespace Connector.BCF30.v1.ViewpointSnapshot;
+
+internal static class DataObjectExtensions
+{
+    public static bool TryGetParameterValue<T>(this DataObjectCacheWriteArguments args, string key, out T? value)
+    {
+        value = default;
+        if (args == null) return false;
+
+        var dict = args.GetType().GetProperty("Arguments")?.GetValue(args) as IDictionary<string, object>;
+        if (dict == null || !dict.ContainsKey(key)) return false;
+
+        try
+        {
+            value = (T)dict[key];
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
 
 public class ViewpointSnapshotDataReader : TypedAsyncDataReaderBase<ViewpointSnapshotDataObject>
 {
     private readonly ILogger<ViewpointSnapshotDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
 
     public ViewpointSnapshotDataReader(
-        ILogger<ViewpointSnapshotDataReader> logger)
+        ILogger<ViewpointSnapshotDataReader> logger,
+        ApiClient apiClient)
     {
         _logger = logger;
+        _apiClient = apiClient;
     }
 
-    public override async IAsyncEnumerable<ViewpointSnapshotDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<ViewpointSnapshotDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
+        if (dataObjectRunArguments == null)
         {
-            var response = new ApiResponse<PaginatedResponse<ViewpointSnapshotDataObject>>();
-            // If the ViewpointSnapshotDataObject does not have the same structure as the ViewpointSnapshot response from the API, create a new class for it and replace ViewpointSnapshotDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<ViewpointSnapshotResponse>>();
+            _logger.LogError("DataObjectRunArguments is null");
+            yield break;
+        }
 
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<ViewpointSnapshotDataObject>(
-                //    relativeUrl: "viewpointSnapshots",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'ViewpointSnapshotDataObject'");
-                throw;
-            }
+        if (!dataObjectRunArguments.TryGetParameterValue("project_id", out string? projectId) || string.IsNullOrEmpty(projectId))
+        {
+            _logger.LogError("Project ID is null or empty");
+            yield break;
+        }
+
+        if (!dataObjectRunArguments.TryGetParameterValue("topic_id", out string? topicId) || string.IsNullOrEmpty(topicId))
+        {
+            _logger.LogError("Topic ID is null or empty");
+            yield break;
+        }
+
+        if (!dataObjectRunArguments.TryGetParameterValue("viewpoint_id", out string? viewpointId) || string.IsNullOrEmpty(viewpointId))
+        {
+            _logger.LogError("Viewpoint ID is null or empty");
+            yield break;
+        }
+
+        ViewpointSnapshotDataObject? snapshot = null;
+
+        try
+        {
+            var response = await _apiClient.GetBcf30ViewpointSnapshot(
+                projectId,
+                topicId,
+                viewpointId,
+                cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'ViewpointSnapshotDataObject'. API StatusCode: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve BCF 3.0 viewpoint snapshot. API StatusCode: {response.StatusCode}");
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
+            snapshot = response.Data;
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, 
+                "Exception while retrieving BCF 3.0 viewpoint snapshot for project {ProjectId}, topic {TopicId}, and viewpoint {ViewpointId}", 
+                projectId, topicId, viewpointId);
+            throw;
+        }
 
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
-            {
-                // If new class was created to match the API response, create a new ViewpointSnapshotDataObject object, map the properties and return a ViewpointSnapshotDataObject.
-
-                // Example:
-                //var resource = new ViewpointSnapshotDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
-            }
+        if (snapshot != null)
+        {
+            yield return snapshot;
         }
     }
 }

@@ -1,78 +1,59 @@
 using Connector.Client;
-using System;
 using ESR.Hosting.CacheWriter;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Xchange.Connector.SDK.CacheWriter;
-using System.Net.Http;
 
 namespace Connector.BCF21.v1.Project;
 
 public class ProjectDataReader : TypedAsyncDataReaderBase<ProjectDataObject>
 {
     private readonly ILogger<ProjectDataReader> _logger;
-    private int _currentPage = 0;
+    private readonly ApiClient _apiClient;
+    private readonly string _projectId;
 
     public ProjectDataReader(
-        ILogger<ProjectDataReader> logger)
+        ILogger<ProjectDataReader> logger,
+        ApiClient apiClient,
+        string projectId)
     {
         _logger = logger;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+        _projectId = projectId ?? throw new ArgumentNullException(nameof(projectId));
     }
 
-    public override async IAsyncEnumerable<ProjectDataObject> GetTypedDataAsync(DataObjectCacheWriteArguments ? dataObjectRunArguments, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public override async IAsyncEnumerable<ProjectDataObject> GetTypedDataAsync(
+        DataObjectCacheWriteArguments? dataObjectRunArguments,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (true)
+        ProjectDataObject? project = null;
+        try
         {
-            var response = new ApiResponse<PaginatedResponse<ProjectDataObject>>();
-            // If the ProjectDataObject does not have the same structure as the Project response from the API, create a new class for it and replace ProjectDataObject with it.
-            // Example:
-            // var response = new ApiResponse<IEnumerable<ProjectResponse>>();
-
-            // Make a call to your API/system to retrieve the objects/type for the connector's configuration.
-            try
-            {
-                //response = await _apiClient.GetRecords<ProjectDataObject>(
-                //    relativeUrl: "projects",
-                //    page: _currentPage,
-                //    cancellationToken: cancellationToken)
-                //    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException exception)
-            {
-                _logger.LogError(exception, "Exception while making a read request to data object 'ProjectDataObject'");
-                throw;
-            }
+            var response = await _apiClient.GetBcf21Project(
+                _projectId,
+                cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessful)
             {
-                throw new Exception($"Failed to retrieve records for 'ProjectDataObject'. API StatusCode: {response.StatusCode}");
+                _logger.LogError("Failed to retrieve project {ProjectId}. Status code: {StatusCode}", _projectId, response.StatusCode);
+                throw new Exception($"Failed to retrieve project. API StatusCode: {response.StatusCode}");
             }
 
-            if (response.Data == null || !response.Data.Items.Any()) break;
+            project = response.Data;
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Exception while retrieving project {ProjectId}", _projectId);
+            throw;
+        }
 
-            // Return the data objects to Cache.
-            foreach (var item in response.Data.Items)
-            {
-                // If new class was created to match the API response, create a new ProjectDataObject object, map the properties and return a ProjectDataObject.
-
-                // Example:
-                //var resource = new ProjectDataObject
-                //{
-                //// TODO: Map properties.      
-                //};
-                //yield return resource;
-                yield return item;
-            }
-
-            // Handle pagination per API client design
-            _currentPage++;
-            if (_currentPage >= response.Data.TotalPages)
-            {
-                break;
-            }
+        if (project != null)
+        {
+            yield return project;
         }
     }
 }
